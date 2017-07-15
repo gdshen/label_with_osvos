@@ -28,6 +28,21 @@ ApplicationWindow {
         }
     }
 
+    FileDialog {
+        id: fileSaveDialog
+        title: "Save file as"
+        selectExisting: false
+        onAccepted: {
+            console.log("Save file as " + fileSaveDialog.fileUrl.toString(
+                            ).slice(8)) // convert url to pure filename
+            var result = canvas.save(fileSaveDialog.fileUrl.toString().slice(8))
+            console.log("Save " + result)
+        }
+        onRejected: {
+            console.log("Rejected file save")
+        }
+    }
+
     Action {
         id: fileOpenAction
         text: "Open"
@@ -41,6 +56,10 @@ ApplicationWindow {
     Action {
         id: saveCurrentCanvas
         text: "Save"
+        shortcut: StandardKey.Save
+        onTriggered: {
+            fileSaveDialog.open()
+        }
     }
 
     Action {
@@ -59,6 +78,9 @@ ApplicationWindow {
             title: "&File"
             MenuItem {
                 action: fileOpenAction
+            }
+            MenuItem {
+                action: saveCurrentCanvas
             }
             MenuItem {
                 text: "Quit"
@@ -82,6 +104,9 @@ ApplicationWindow {
             spacing: 0
             ToolButton {
                 action: fileOpenAction
+            }
+            ToolButton {
+                action: saveCurrentCanvas
             }
             ToolButton {
                 action: undoAction
