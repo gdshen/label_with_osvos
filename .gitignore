@@ -1,3 +1,4 @@
 .idea/
-.playground.py
+playground*.py
 images/
+qml/*.qmlc
