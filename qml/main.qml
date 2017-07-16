@@ -10,6 +10,8 @@ ApplicationWindow {
     width: 640
     height: 480
 
+    signal runOSVOS
+
     //    minimumWidth: 400
     //    minimumHeight: 300
     title: "Label with OSVOS"
@@ -108,6 +110,15 @@ ApplicationWindow {
         }
     }
 
+    Action {
+        id: runOSVOSAction
+        text: "run"
+        onTriggered: {
+            console.log("run osvos")
+            mainwindow.runOSVOS()
+        }
+    }
+
     menuBar: MenuBar {
         Menu {
             title: "&File"
@@ -135,6 +146,12 @@ ApplicationWindow {
                 action: closeRegionAction
             }
         }
+        Menu {
+            title: "OSVOS"
+            MenuItem {
+                action: runOSVOSAction()
+            }
+        }
     }
 
     toolBar: ToolBar {
@@ -160,6 +177,9 @@ ApplicationWindow {
             }
             ToolButton {
                 action: clearAction
+            }
+            ToolButton {
+                action: runOSVOSAction
             }
         }
     }
