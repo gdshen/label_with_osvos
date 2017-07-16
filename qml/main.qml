@@ -10,7 +10,7 @@ ApplicationWindow {
     width: 640
     height: 480
 
-    signal runOSVOS
+    signal runOSVOS(string message)
 
     //    minimumWidth: 400
     //    minimumHeight: 300
@@ -115,7 +115,7 @@ ApplicationWindow {
         text: "run"
         onTriggered: {
             console.log("run osvos")
-            mainwindow.runOSVOS()
+            mainwindow.runOSVOS("a long message")
         }
     }
 
@@ -182,6 +182,20 @@ ApplicationWindow {
                 action: runOSVOSAction
             }
         }
+    }
+
+    statusBar: StatusBar {
+        RowLayout {
+            anchors.fill: parent
+            Label {
+                id: statusBarLabel
+                text: "Status Bar"
+            }
+        }
+    }
+
+    function setStatusBarContent(content) {
+        statusBarLabel.text = content
     }
 
     Image {
