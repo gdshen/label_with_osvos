@@ -63,6 +63,20 @@ ApplicationWindow {
     }
 
     Action {
+        id: closeRegionAction
+        text: "Close"
+        onTriggered: {
+            if (canvas.points.length > 0) {
+                canvas.startPointX = canvas.points[canvas.points.length - 1].targetPointX
+                canvas.startPointY = canvas.points[canvas.points.length - 1].targetPointY
+                canvas.targetPointX = canvas.points[0].startPointX
+                canvas.targetPointY = canvas.points[0].startPointY
+                canvas.buttonPressed = 2
+            }
+        }
+    }
+
+    Action {
         id: undoAction
         text: "Undo"
         shortcut: StandardKey.Undo
@@ -93,6 +107,9 @@ ApplicationWindow {
             MenuItem {
                 action: undoAction
             }
+            MenuItem {
+                action: closeRegionAction
+            }
         }
     }
 
@@ -107,6 +124,9 @@ ApplicationWindow {
             }
             ToolButton {
                 action: saveCurrentCanvas
+            }
+            ToolButton {
+                action: closeRegionAction
             }
             ToolButton {
                 action: undoAction
@@ -171,10 +191,12 @@ ApplicationWindow {
                 if (canvas.buttonPressed === 0) {
                     canvas.startPointX = mouseX
                     canvas.startPointY = mouseY
-                } else if (canvas.buttonPressed === 1) {
+                }
+                if (canvas.buttonPressed === 1) {
                     canvas.targetPointX = mouseX
                     canvas.targetPointY = mouseY
-                } else if (canvas.buttonPressed === 2) {
+                }
+                if (canvas.buttonPressed === 2) {
                     canvas.controlPointX = mouseX
                     canvas.controlPointY = mouseY
 
@@ -187,6 +209,10 @@ ApplicationWindow {
                                            targetPointY: canvas.targetPointY
                                        })
                     canvas.requestPaint()
+
+                    //                    canvas.startPointX = canvas.targetPointX
+                    //                    canvas.startPointY = canvas.targetPointY
+                    //                    canvas.buttonPressed += 1
                 }
                 canvas.buttonPressed = (canvas.buttonPressed + 1) % 3
             }
@@ -194,6 +220,13 @@ ApplicationWindow {
             onPositionChanged: {
                 canvas.lastX = mouseX
                 canvas.lastY = mouseY
+                if (canvas.buttonPressed === 0 && canvas.points.length > 0) {
+                    // make the successive bezier curve's startPoint be the previous beizer curve's targetPoint
+                    canvas.startPointX = canvas.points[canvas.points.length - 1].targetPointX
+                    canvas.startPointY = canvas.points[canvas.points.length - 1].targetPointY
+                    canvas.buttonPressed += 1
+                }
+
                 if (canvas.buttonPressed === 1 || canvas.buttonPressed === 2) {
                     canvas.requestPaint()
                 }
