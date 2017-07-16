@@ -4,4 +4,3 @@ images/
 qml/*.qmlc
 models
 !models/OSVOS_parent
-data
