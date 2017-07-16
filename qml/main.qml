@@ -149,7 +149,7 @@ ApplicationWindow {
         Menu {
             title: "OSVOS"
             MenuItem {
-                action: runOSVOSAction()
+                action: runOSVOSAction
             }
         }
     }

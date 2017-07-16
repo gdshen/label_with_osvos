@@ -3,6 +3,7 @@ from PyQt5.QtCore import QUrl, QObject, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtQml import QQmlEngine, QQmlComponent, QQmlApplicationEngine
 from PyQt5.QtQuick import QQuickView
+from osvos_demo import run_osvos
 
 
 if __name__ == '__main__':
@@ -14,8 +15,9 @@ if __name__ == '__main__':
     main_window = engine.rootObjects()[0]
 
     def osvos(message):
-        print(message)
-        main_window.setStatusBarContent(message)
+        main_window.setStatusBarContent("Training")
+        run_osvos()
+        main_window.setStatusBarContent("Finished")
 
     main_window.runOSVOS.connect(osvos)
 
