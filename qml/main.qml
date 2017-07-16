@@ -63,6 +63,15 @@ ApplicationWindow {
     }
 
     Action {
+        id: fillAction
+        text: "Fill"
+        onTriggered: {
+            canvas.fillTheRegion = true
+            canvas.requestPaint()
+        }
+    }
+
+    Action {
         id: closeRegionAction
         text: "Close"
         onTriggered: {
@@ -129,6 +138,10 @@ ApplicationWindow {
                 action: closeRegionAction
             }
             ToolButton {
+                action: fillAction
+            }
+
+            ToolButton {
                 action: undoAction
             }
         }
@@ -152,35 +165,51 @@ ApplicationWindow {
         property real targetPointY: 0
 
         property int buttonPressed: 0
+        property bool fillTheRegion: false
 
         property var points: []
         property color color: "#33B5E3"
 
         onPaint: {
             var ctx = canvas.getContext("2d")
+            if (fillTheRegion) {
+                ctx.fillStyle = '#fff'
+                ctx.beginPath()
+                ctx.moveTo(points[0].startPointX, points[0].startPointY)
+                for (var i = 0; i < points.length; i++) {
+                    ctx.quadraticCurveTo(points[i].controlPointX,
+                                         points[i].controlPointY,
+                                         points[i].targetPointX,
+                                         points[i].targetPointY)
+                }
+                ctx.closePath()
+                ctx.fill()
+            } else {
+                ctx.lineWidth = 1.5
+                ctx.strokeStyle = canvas.color
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                if (canvas.buttonPressed === 1) {
+                    ctx.beginPath()
+                    ctx.moveTo(startPointX, startPointY)
+                    ctx.lineTo(lastX, lastY)
+                    ctx.stroke()
+                } else if (canvas.buttonPressed === 2) {
+                    ctx.beginPath()
+                    ctx.moveTo(startPointX, startPointY)
+                    ctx.quadraticCurveTo(lastX, lastY, targetPointX,
+                                         targetPointY)
+                    ctx.stroke()
+                }
 
-            ctx.lineWidth = 1.5
-            ctx.strokeStyle = canvas.color
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
-            if (canvas.buttonPressed === 1) {
-                ctx.beginPath()
-                ctx.moveTo(startPointX, startPointY)
-                ctx.lineTo(lastX, lastY)
-                ctx.stroke()
-            } else if (canvas.buttonPressed === 2) {
-                ctx.beginPath()
-                ctx.moveTo(startPointX, startPointY)
-                ctx.quadraticCurveTo(lastX, lastY, targetPointX, targetPointY)
-                ctx.stroke()
-            }
-
-            for (var i = 0; i < points.length; i++) {
-                var point = points[i]
-                ctx.beginPath()
-                ctx.moveTo(point.startPointX, point.startPointY)
-                ctx.quadraticCurveTo(point.controlPointX, point.controlPointY,
-                                     point.targetPointX, point.targetPointY)
-                ctx.stroke()
+                for (var i = 0; i < points.length; i++) {
+                    var point = points[i]
+                    ctx.beginPath()
+                    ctx.moveTo(point.startPointX, point.startPointY)
+                    ctx.quadraticCurveTo(point.controlPointX,
+                                         point.controlPointY,
+                                         point.targetPointX, point.targetPointY)
+                    ctx.stroke()
+                }
             }
         }
 
