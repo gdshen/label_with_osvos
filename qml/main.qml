@@ -86,6 +86,18 @@ ApplicationWindow {
     }
 
     Action {
+        id: clearAction
+        text: "Clear"
+        onTriggered: {
+            canvas.buttonPressed = 0
+            canvas.points = []
+            canvas.fillTheRegion = false
+            console.log("Clear")
+            canvas.requestPaint()
+        }
+    }
+
+    Action {
         id: undoAction
         text: "Undo"
         shortcut: StandardKey.Undo
@@ -117,6 +129,9 @@ ApplicationWindow {
                 action: undoAction
             }
             MenuItem {
+                action: clearAction
+            }
+            MenuItem {
                 action: closeRegionAction
             }
         }
@@ -140,9 +155,11 @@ ApplicationWindow {
             ToolButton {
                 action: fillAction
             }
-
             ToolButton {
                 action: undoAction
+            }
+            ToolButton {
+                action: clearAction
             }
         }
     }
@@ -172,6 +189,7 @@ ApplicationWindow {
 
         onPaint: {
             var ctx = canvas.getContext("2d")
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
             if (fillTheRegion) {
                 ctx.fillStyle = '#fff'
                 ctx.beginPath()
@@ -187,7 +205,6 @@ ApplicationWindow {
             } else {
                 ctx.lineWidth = 1.5
                 ctx.strokeStyle = canvas.color
-                ctx.clearRect(0, 0, canvas.width, canvas.height)
                 if (canvas.buttonPressed === 1) {
                     ctx.beginPath()
                     ctx.moveTo(startPointX, startPointY)
