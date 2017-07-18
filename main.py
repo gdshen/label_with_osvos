@@ -1,3 +1,9 @@
+# fix opengl load error on linux platform
+# according to https://bugs.launchpad.net/ubuntu/+source/python-qt4/+bug/941826
+import ctypes
+from ctypes import util
+ctypes.CDLL(util.find_library('GL'), ctypes.RTLD_GLOBAL)
+
 import sys
 from PyQt5.QtCore import QUrl, QObject, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMainWindow
@@ -16,7 +22,8 @@ if __name__ == '__main__':
 
     def osvos(message):
         main_window.setStatusBarContent("Training")
-        run_osvos()
+        # run_osvos()
+        print("run osvos")
         main_window.setStatusBarContent("Finished")
 
     main_window.runOSVOS.connect(osvos)
