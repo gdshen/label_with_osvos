@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 2.7
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.0
 import QtQuick.Dialogs 1.1
@@ -228,6 +228,8 @@ ApplicationWindow {
         property color controlLineColor: "#0FF"
         property color rectColor: "#F00"
         property real rectWidth: 5
+        property bool controlPressed: false
+        property bool altPressed: false
 
         onPaint: {
             var ctx = canvas.getContext("2d")
@@ -273,6 +275,7 @@ ApplicationWindow {
         MouseArea {
             id: area
             anchors.fill: parent
+            focus: true // to enable the keyevent, the focus property must be set to true
 
             onPressed: {
                 if (canvas.firstPoint) {
@@ -325,6 +328,28 @@ ApplicationWindow {
                 canvas.points[canvas.points.length - 1].controlPoint.X = mouseX
                 canvas.points[canvas.points.length - 1].controlPoint.Y = mouseY
                 canvas.requestPaint()
+            }
+
+            Keys.onPressed: {
+                if (event.key === Qt.Key_Control) {
+                    console.log("Pressed Control")
+                    canvas.controlPressed = true
+                }
+                if (event.key === Qt.Key_Alt) {
+                    console.log("Pressed alt")
+                    canvas.altPressed = true
+                }
+            }
+
+            Keys.onReleased: {
+                if (event.key === Qt.Key_Control) {
+                    console.log("Release control")
+                    canvas.controlPressed = false
+                }
+                if (event.key === Qt.Key_Alt) {
+                    console.log("Release alt")
+                    canvas.altPressed = false
+                }
             }
         }
     }
