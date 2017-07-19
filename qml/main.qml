@@ -24,6 +24,8 @@ ApplicationWindow {
         onAccepted: {
             image.source = fileDialog.fileUrl
             console.log("You chose: " + fileDialog.fileUrl)
+            statusBarLabel.text = "Image width " + image.width + " height " + image.height
+                    + "; canvas width " + canvas.width + " height " + canvas.height
         }
         onRejected: {
             console.log("Cancle")
@@ -36,8 +38,8 @@ ApplicationWindow {
         selectExisting: false
         onAccepted: {
             console.log("Save file as " + fileSaveDialog.fileUrl.toString(
-                            ).slice(8)) // convert url to pure filename
-            var result = canvas.save(fileSaveDialog.fileUrl.toString().slice(8))
+                            ).slice(7)) // convert url to pure filename
+            var result = canvas.save(fileSaveDialog.fileUrl.toString().slice(7))
             console.log("Save " + result)
         }
         onRejected: {
@@ -179,14 +181,14 @@ ApplicationWindow {
 
     Image {
         id: image
+        anchors.horizontalCenter: parent.horizontalCenter
     }
 
     Canvas {
         id: canvas
-        anchors.fill: parent
-
-        property real lastX: 0
-        property real lastY: 0
+        width: image.width
+        height: image.height
+        anchors.horizontalCenter: image.horizontalCenter
         property var startPoint: {
             X: 0
             Y: 0
