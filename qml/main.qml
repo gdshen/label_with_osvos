@@ -208,108 +208,123 @@ ApplicationWindow {
 
         property real lastX: 0
         property real lastY: 0
-        property real startPointX: 0
-        property real startPointY: 0
-        property real controlPointX: 0
-        property real controlPointY: 0
-        property real targetPointX: 0
-        property real targetPointY: 0
+        property var startPoint: {
+            X: 0
+            Y: 0
+        }
+        property var controlPoint: {
+            X: 0
+            Y: 0
+        }
+        property real targetPoint: {
+            X: 0
+            Y: 0
+        }
 
-        property int buttonPressed: 0
-        property bool fillTheRegion: false
+        property bool firstPoint: true
 
         property var points: []
-        property color color: "#33B5E3"
+        property color bezierLineColor: "#000"
+        property color controlLineColor: "#0FF"
+        property color rectColor: "#F00"
+        property real rectWidth: 5
 
         onPaint: {
             var ctx = canvas.getContext("2d")
             ctx.clearRect(0, 0, canvas.width, canvas.height)
-            if (fillTheRegion) {
-                ctx.fillStyle = '#fff'
-                ctx.beginPath()
-                ctx.moveTo(points[0].startPointX, points[0].startPointY)
-                for (var i = 0; i < points.length; i++) {
-                    ctx.quadraticCurveTo(points[i].controlPointX,
-                                         points[i].controlPointY,
-                                         points[i].targetPointX,
-                                         points[i].targetPointY)
-                }
-                ctx.closePath()
-                ctx.fill()
-            } else {
-                ctx.lineWidth = 1.5
-                ctx.strokeStyle = canvas.color
-                if (canvas.buttonPressed === 1) {
-                    ctx.beginPath()
-                    ctx.moveTo(startPointX, startPointY)
-                    ctx.lineTo(lastX, lastY)
-                    ctx.stroke()
-                } else if (canvas.buttonPressed === 2) {
-                    ctx.beginPath()
-                    ctx.moveTo(startPointX, startPointY)
-                    ctx.quadraticCurveTo(lastX, lastY, targetPointX,
-                                         targetPointY)
-                    ctx.stroke()
-                }
 
-                for (var i = 0; i < points.length; i++) {
-                    var point = points[i]
-                    ctx.beginPath()
-                    ctx.moveTo(point.startPointX, point.startPointY)
-                    ctx.quadraticCurveTo(point.controlPointX,
-                                         point.controlPointY,
-                                         point.targetPointX, point.targetPointY)
-                    ctx.stroke()
-                }
+            ctx.lineWidth = 1.5
+            console.log("Painting" + points.length)
+            for (var i = 0; i < points.length; i++) {
+                var point = points[i]
+
+                // draw bezier curve
+                ctx.beginPath()
+                ctx.strokeStyle = canvas.bezierLineColor
+                ctx.moveTo(point.startPoint.X, point.startPoint.Y)
+                ctx.quadraticCurveTo(point.controlPoint.X,
+                                     point.controlPoint.Y, point.targetPoint.X,
+                                     point.targetPoint.Y)
+                ctx.stroke()
+
+                // draw the control line
+                ctx.beginPath()
+                ctx.strokeStyle = canvas.controlLineColor
+                ctx.moveTo(point.targetPoint.X, point.targetPoint.Y)
+                ctx.lineTo(point.controlPoint.X, point.controlPoint.Y)
+                ctx.stroke()
+
+                // draw the rect for the target point
+                ctx.beginPath()
+                ctx.strokeStyle = canvas.rectColor
+                ctx.rect(point.targetPoint.X, point.targetPoint.Y, rectWidth,
+                         rectWidth)
+                ctx.stroke()
+
+                // draw the rect for the control point
+                ctx.beginPath()
+                ctx.strokeStyle = canvas.rectColor
+                ctx.rect(point.controlPoint.X, point.controlPoint.Y, rectWidth,
+                         rectWidth)
+                ctx.stroke()
             }
         }
 
         MouseArea {
             id: area
             anchors.fill: parent
-            onReleased: {
-                if (canvas.buttonPressed === 0) {
-                    canvas.startPointX = mouseX
-                    canvas.startPointY = mouseY
-                }
-                if (canvas.buttonPressed === 1) {
-                    canvas.targetPointX = mouseX
-                    canvas.targetPointY = mouseY
-                }
-                if (canvas.buttonPressed === 2) {
-                    canvas.controlPointX = mouseX
-                    canvas.controlPointY = mouseY
 
+            onPressed: {
+                if (canvas.firstPoint) {
                     canvas.points.push({
-                                           startPointX: canvas.startPointX,
-                                           startPointY: canvas.startPointY,
-                                           controlPointX: canvas.controlPointX,
-                                           controlPointY: canvas.controlPointY,
-                                           targetPointX: canvas.targetPointX,
-                                           targetPointY: canvas.targetPointY
+                                           startPoint: {
+                                               X: mouseX,
+                                               Y: mouseY
+                                           },
+                                           controlPoint: {
+                                               X: mouseX,
+                                               Y: mouseY
+                                           },
+                                           targetPoint: {
+                                               X: mouseX,
+                                               Y: mouseY
+                                           }
                                        })
-                    canvas.requestPaint()
-
-                    //                    canvas.startPointX = canvas.targetPointX
-                    //                    canvas.startPointY = canvas.targetPointY
-                    //                    canvas.buttonPressed += 1
+                } else {
+                    var spx = canvas.points[canvas.points.length - 1].targetPoint.X
+                    var spy = canvas.points[canvas.points.length - 1].targetPoint.Y
+                    canvas.points.push({
+                                           startPoint: {
+                                               X: spx,
+                                               Y: spy
+                                           },
+                                           controlPoint: {
+                                               X: mouseX,
+                                               Y: mouseY
+                                           },
+                                           targetPoint: {
+                                               X: mouseX,
+                                               Y: mouseY
+                                           }
+                                       })
                 }
-                canvas.buttonPressed = (canvas.buttonPressed + 1) % 3
+            }
+
+            onReleased: {
+                console.log(canvas.points.length)
+                canvas.points[canvas.points.length - 1].controlPoint.X = mouseX
+                canvas.points[canvas.points.length - 1].controlPoint.Y = mouseY
+                if (canvas.firstPoint) {
+                    canvas.firstPoint = false
+                }
+
+                canvas.requestPaint()
             }
 
             onPositionChanged: {
-                canvas.lastX = mouseX
-                canvas.lastY = mouseY
-                if (canvas.buttonPressed === 0 && canvas.points.length > 0) {
-                    // make the successive bezier curve's startPoint be the previous beizer curve's targetPoint
-                    canvas.startPointX = canvas.points[canvas.points.length - 1].targetPointX
-                    canvas.startPointY = canvas.points[canvas.points.length - 1].targetPointY
-                    canvas.buttonPressed += 1
-                }
-
-                if (canvas.buttonPressed === 1 || canvas.buttonPressed === 2) {
-                    canvas.requestPaint()
-                }
+                canvas.points[canvas.points.length - 1].controlPoint.X = mouseX
+                canvas.points[canvas.points.length - 1].controlPoint.Y = mouseY
+                canvas.requestPaint()
             }
         }
     }
