@@ -91,7 +91,6 @@ ApplicationWindow {
         shortcut: StandardKey.Undo
         onTriggered: {
             canvas.points.pop()
-            canvas.buttonPressed = 0
             canvas.requestPaint()
         }
     }
