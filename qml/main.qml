@@ -230,13 +230,16 @@ ApplicationWindow {
         property real rectWidth: 5
         property bool controlPressed: false
         property bool altPressed: false
+        property int distanceThrehold: 10000
+        property bool pointModifyMode: false
+        property var pointToMove: null
 
         onPaint: {
             var ctx = canvas.getContext("2d")
             ctx.clearRect(0, 0, canvas.width, canvas.height)
 
             ctx.lineWidth = 1.5
-            console.log("Painting" + points.length)
+            //            console.log("Painting" + points.length)
             for (var i = 0; i < points.length; i++) {
                 var point = points[i]
 
@@ -272,13 +275,70 @@ ApplicationWindow {
             }
         }
 
+        function printPoints() {
+            var message = ''
+            for (var i = 0; i < points.length; i++) {
+                var startPoint = points[i].startPoint
+                var controlPoint = points[i].controlPoint
+                var targetPoint = points[i].targetPoint
+                message = message.concat('((', startPoint.X, ',',
+                                         startPoint.Y, '),(',
+                                         controlPoint.X, ',',
+                                         controlPoint.Y, '),(',
+                                         targetPoint.X, ',',
+                                         targetPoint.Y, ')) ----')
+            }
+            console.log(message)
+        }
+
+        function computeDistance(point1, point2) {
+            var deltaX = point1.X - point2.X
+            var deltaY = point1.X - point2.X
+            var distance = deltaX * deltaX + deltaY
+                    * deltaY // return square distance, to keep distance as an integer
+            return distance
+        }
+
+        function findClosedPoint(pointToCompare) {
+            var shortestDistance = Infinity
+            var closestPoint = null
+            var distance = 0
+            for (var i = 0; i < points.length; i++) {
+                var pointsOfOneBezierLine = [points[i].startPoint, points[i].controlPoint, points[i].targetPoint]
+                for (var j = 0; j < 3; j++) {
+                    distance = computeDistance(pointToCompare,
+                                               pointsOfOneBezierLine[j])
+                    if (distance <= shortestDistance) {
+                        shortestDistance = distance
+                        closestPoint = pointsOfOneBezierLine[j]
+                    }
+                }
+            }
+            return closestPoint
+        }
+
         MouseArea {
             id: area
             anchors.fill: parent
             focus: true // to enable the keyevent, the focus property must be set to true
 
             onPressed: {
-                if (canvas.firstPoint) {
+                console.log("MouseX: " + mouseX + " MouseY: " + mouseY)
+                console.log("onPressed altPressed" + canvas.altPressed)
+                if (canvas.altPressed) {
+                    console.log("enter alt pressed mode")
+                    var currentPoint = {
+                        X: mouseX,
+                        Y: mouseY
+                    }
+                    var point = canvas.findClosedPoint(currentPoint)
+                    var distance = canvas.computeDistance(currentPoint, point)
+                    console.log("Distance is " + distance)
+                    if (distance < canvas.distanceThrehold) {
+                        canvas.pointModifyMode = true
+                        canvas.pointToMove = point
+                    }
+                } else if (canvas.firstPoint) {
                     canvas.points.push({
                                            startPoint: {
                                                X: mouseX,
@@ -294,13 +354,9 @@ ApplicationWindow {
                                            }
                                        })
                 } else {
-                    var spx = canvas.points[canvas.points.length - 1].targetPoint.X
-                    var spy = canvas.points[canvas.points.length - 1].targetPoint.Y
                     canvas.points.push({
-                                           startPoint: {
-                                               X: spx,
-                                               Y: spy
-                                           },
+                                           startPoint: canvas.points[canvas.points.length
+                                               - 1].targetPoint,
                                            controlPoint: {
                                                X: mouseX,
                                                Y: mouseY
@@ -314,19 +370,36 @@ ApplicationWindow {
             }
 
             onReleased: {
-                console.log(canvas.points.length)
-                canvas.points[canvas.points.length - 1].controlPoint.X = mouseX
-                canvas.points[canvas.points.length - 1].controlPoint.Y = mouseY
-                if (canvas.firstPoint) {
-                    canvas.firstPoint = false
-                }
+                if (canvas.pointModifyMode) {
+                    canvas.pointModifyMode = false
+                } else {
 
+                    console.log(canvas.points.length)
+                    canvas.points[canvas.points.length - 1].controlPoint.X = mouseX
+                    canvas.points[canvas.points.length - 1].controlPoint.Y = mouseY
+                    if (canvas.firstPoint) {
+                        canvas.firstPoint = false
+                    }
+                }
                 canvas.requestPaint()
             }
 
             onPositionChanged: {
-                canvas.points[canvas.points.length - 1].controlPoint.X = mouseX
-                canvas.points[canvas.points.length - 1].controlPoint.Y = mouseY
+                console.log("point modify mode " + canvas.pointModifyMode)
+                if (canvas.pointModifyMode) {
+                    var currentPoint = {
+                        X: mouseX,
+                        Y: mouseY
+                    }
+                    // diffferent from canvas.pointToMove = currentPoint // pass by value vs. pass by reference
+                    canvas.pointToMove.X = currentPoint.X
+                    canvas.pointToMove.Y = currentPoint.Y
+
+                    canvas.printPoints()
+                } else {
+                    canvas.points[canvas.points.length - 1].controlPoint.X = mouseX
+                    canvas.points[canvas.points.length - 1].controlPoint.Y = mouseY
+                }
                 canvas.requestPaint()
             }
 
@@ -338,7 +411,9 @@ ApplicationWindow {
                 if (event.key === Qt.Key_Alt) {
                     console.log("Pressed alt")
                     canvas.altPressed = true
+                    console.log("ALtPressed " + canvas.altPressed)
                 }
+                event.accepted = true
             }
 
             Keys.onReleased: {
@@ -350,6 +425,7 @@ ApplicationWindow {
                     console.log("Release alt")
                     canvas.altPressed = false
                 }
+                event.accpeted = true
             }
         }
     }
