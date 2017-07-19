@@ -74,26 +74,12 @@ ApplicationWindow {
     }
 
     Action {
-        id: closeRegionAction
-        text: "Close"
-        onTriggered: {
-            if (canvas.points.length > 0) {
-                canvas.startPointX = canvas.points[canvas.points.length - 1].targetPointX
-                canvas.startPointY = canvas.points[canvas.points.length - 1].targetPointY
-                canvas.targetPointX = canvas.points[0].startPointX
-                canvas.targetPointY = canvas.points[0].startPointY
-                canvas.buttonPressed = 2
-            }
-        }
-    }
-
-    Action {
         id: clearAction
         text: "Clear"
         onTriggered: {
-            canvas.buttonPressed = 0
             canvas.points = []
             canvas.fillTheRegion = false
+            canvas.firstPoint = true
             console.log("Clear")
             canvas.requestPaint()
         }
@@ -142,9 +128,6 @@ ApplicationWindow {
             MenuItem {
                 action: clearAction
             }
-            MenuItem {
-                action: closeRegionAction
-            }
         }
         Menu {
             title: "OSVOS"
@@ -165,9 +148,6 @@ ApplicationWindow {
             }
             ToolButton {
                 action: saveCurrentCanvas
-            }
-            ToolButton {
-                action: closeRegionAction
             }
             ToolButton {
                 action: fillAction
@@ -234,10 +214,24 @@ ApplicationWindow {
         property bool pointModifyMode: false
         property var pointToMove: null
         property bool drawAdditionalInformation: true
+        property bool fillTheRegion: false
 
         onPaint: {
             var ctx = canvas.getContext("2d")
             ctx.clearRect(0, 0, canvas.width, canvas.height)
+            if (fillTheRegion) {
+                ctx.fillStyle = '#fff'
+                ctx.beginPath()
+                ctx.moveTo(points[0].startPoint.X, points[0].startPoint.Y)
+                for (var i = 0; i < points.length; i++) {
+                    ctx.quadraticCurveTo(points[i].controlPoint.X,
+                                         points[i].controlPoint.Y,
+                                         points[i].targetPoint.X,
+                                         points[i].targetPoint.Y)
+                }
+                ctx.fill()
+                return
+            }
 
             ctx.lineWidth = 1.5
             //            console.log("Painting" + points.length)
