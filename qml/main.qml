@@ -233,6 +233,7 @@ ApplicationWindow {
         property int distanceThrehold: 10000
         property bool pointModifyMode: false
         property var pointToMove: null
+        property bool drawAdditionalInformation: true
 
         onPaint: {
             var ctx = canvas.getContext("2d")
@@ -252,26 +253,28 @@ ApplicationWindow {
                                      point.targetPoint.Y)
                 ctx.stroke()
 
-                // draw the control line
-                ctx.beginPath()
-                ctx.strokeStyle = canvas.controlLineColor
-                ctx.moveTo(point.targetPoint.X, point.targetPoint.Y)
-                ctx.lineTo(point.controlPoint.X, point.controlPoint.Y)
-                ctx.stroke()
+                if (drawAdditionalInformation) {
+                    // draw the control line
+                    ctx.beginPath()
+                    ctx.strokeStyle = canvas.controlLineColor
+                    ctx.moveTo(point.targetPoint.X, point.targetPoint.Y)
+                    ctx.lineTo(point.controlPoint.X, point.controlPoint.Y)
+                    ctx.stroke()
 
-                // draw the rect for the target point
-                ctx.beginPath()
-                ctx.strokeStyle = canvas.rectColor
-                ctx.rect(point.targetPoint.X, point.targetPoint.Y, rectWidth,
-                         rectWidth)
-                ctx.stroke()
+                    // draw the rect for the target point
+                    ctx.beginPath()
+                    ctx.strokeStyle = canvas.rectColor
+                    ctx.rect(point.targetPoint.X, point.targetPoint.Y,
+                             rectWidth, rectWidth)
+                    ctx.stroke()
 
-                // draw the rect for the control point
-                ctx.beginPath()
-                ctx.strokeStyle = canvas.rectColor
-                ctx.rect(point.controlPoint.X, point.controlPoint.Y, rectWidth,
-                         rectWidth)
-                ctx.stroke()
+                    // draw the rect for the control point
+                    ctx.beginPath()
+                    ctx.strokeStyle = canvas.rectColor
+                    ctx.rect(point.controlPoint.X, point.controlPoint.Y,
+                             rectWidth, rectWidth)
+                    ctx.stroke()
+                }
             }
         }
 
@@ -321,8 +324,16 @@ ApplicationWindow {
             id: area
             anchors.fill: parent
             focus: true // to enable the keyevent, the focus property must be set to true
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
 
             onPressed: {
+                if (pressedButtons === Qt.RightButton) {
+                    console.log("Pressed right button")
+                    canvas.drawAdditionalInformation = !canvas.drawAdditionalInformation
+                    canvas.requestPaint()
+                    return
+                }
+
                 console.log("MouseX: " + mouseX + " MouseY: " + mouseY)
                 console.log("onPressed altPressed" + canvas.altPressed)
                 if (canvas.altPressed) {
@@ -354,18 +365,41 @@ ApplicationWindow {
                                            }
                                        })
                 } else {
-                    canvas.points.push({
-                                           startPoint: canvas.points[canvas.points.length
-                                               - 1].targetPoint,
-                                           controlPoint: {
-                                               X: mouseX,
-                                               Y: mouseY
-                                           },
-                                           targetPoint: {
-                                               X: mouseX,
-                                               Y: mouseY
-                                           }
-                                       })
+                    if (canvas.controlPressed) {
+                        console.log("enter control pressed mode")
+                        var currentPoint = {
+                            X: mouseX,
+                            Y: mouseY
+                        }
+                        var point = canvas.findClosedPoint(currentPoint)
+                        var distance = canvas.computeDistance(currentPoint,
+                                                              point)
+                        console.log("Distance is " + distance)
+                        if (distance < canvas.distanceThrehold) {
+                            canvas.points.push({
+                                                   startPoint: canvas.points[canvas.points.length
+                                                       - 1].targetPoint,
+                                                   controlPoint: {
+                                                       X: mouseX,
+                                                       Y: mouseY
+                                                   },
+                                                   targetPoint: point
+                                               })
+                        }
+                    } else {
+                        canvas.points.push({
+                                               startPoint: canvas.points[canvas.points.length
+                                                   - 1].targetPoint,
+                                               controlPoint: {
+                                                   X: mouseX,
+                                                   Y: mouseY
+                                               },
+                                               targetPoint: {
+                                                   X: mouseX,
+                                                   Y: mouseY
+                                               }
+                                           })
+                    }
                 }
             }
 
