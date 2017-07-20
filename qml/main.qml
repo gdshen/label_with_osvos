@@ -2,11 +2,18 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.3
+import QtQuick.Controls.Material 2.2
 import Qt.labs.platform 1.0
 
 ApplicationWindow {
     id: mainwindow
     visible: true
+
+    Material.theme: Material.System
+    Material.primary: Material.Grey
+    Material.foreground: "#444444"
+    Material.accent: Material.Blue
+
     width: 640
     height: 480
 
@@ -15,6 +22,11 @@ ApplicationWindow {
     //    minimumWidth: 400
     //    minimumHeight: 300
     title: "Label with OSVOS"
+
+    FontLoader {
+        id: font
+        source: "fonts/fontello.ttf"
+    }
 
     // this filedialog from qt.labs.platform
     FileDialog {
@@ -100,12 +112,14 @@ ApplicationWindow {
                 id: fileRow
                 ToolButton {
                     id: openButton
-                    text: "Open" // todo, change font
+                    text: "\uF115"
+                    font.family: "fontello"
                     onClicked: openDialog.open()
                 }
                 ToolButton {
                     id: saveButton
-                    text: "Save"
+                    text: "\uE800"
+                    font.family: "fontello"
                     onClicked: saveDialog.open()
                 }
 
@@ -118,7 +132,8 @@ ApplicationWindow {
                 id: actionRow
                 ToolButton {
                     id: undoButton
-                    text: "undo" // todo
+                    text: "\uE801"
+                    font.family: "fontello"
                     onClicked: {
                         canvas.points.pop()
                         canvas.requestPaint()
@@ -126,7 +141,8 @@ ApplicationWindow {
                 }
                 ToolButton {
                     id: fillButton
-                    text: "fill"
+                    text: "\uE802"
+                    font.family: "fontello"
                     onClicked: {
                         canvas.fillTheRegion = true
                         canvas.requestPaint()
@@ -134,7 +150,8 @@ ApplicationWindow {
                 }
                 ToolButton {
                     id: clearButton
-                    text: "clear"
+                    text: "\uF12D"
+                    font.family: "fontello"
                     onClicked: {
                         canvas.points = []
                         canvas.fillTheRegion = false
@@ -153,7 +170,8 @@ ApplicationWindow {
                 id: osvosRow
                 ToolButton {
                     id: runOSVOSButton
-                    text: "osvos"
+                    text: "\uE803"
+                    font.family: "fontello"
                     onClicked: {
                         console.log("run osvos")
                         mainwindow.runOSVOS("a long message")

@@ -1,5 +1,8 @@
 # fix opengl load error on linux platform
 # according to https://bugs.launchpad.net/ubuntu/+source/python-qt4/+bug/941826
+import os
+os.environ['QT_QUICK_CONTROLS_STYLE'] = 'Material'
+
 import ctypes
 from ctypes import util
 ctypes.CDLL(util.find_library('GL'), ctypes.RTLD_GLOBAL)
