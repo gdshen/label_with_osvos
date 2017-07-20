@@ -31,7 +31,7 @@ ApplicationWindow {
     // this filedialog from qt.labs.platform
     FileDialog {
         id: openDialog
-        fileMode: FileDialog.OpenFile
+        fileMode: FileDialog.OpenFiles
         folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
         nameFilters: ["JPEG files (*.jpg)", "PNG files (*.png)"]
         onAccepted: {
@@ -445,7 +445,6 @@ ApplicationWindow {
                 }
                 canvas.requestPaint()
             }
-
             Keys.onPressed: {
                 if (event.key === Qt.Key_Control) {
                     console.log("Pressed Control")
@@ -456,6 +455,10 @@ ApplicationWindow {
                     canvas.altPressed = true
                     console.log("ALtPressed " + canvas.altPressed)
                 }
+                if (event.key === Qt.Key_Space) {
+                    console.log("Pressed space")
+                }
+
                 event.accepted = true
             }
 
@@ -470,6 +473,32 @@ ApplicationWindow {
                 }
                 event.accpeted = true
             }
+        }
+    }
+
+    Rectangle {
+        anchors.right: parent.right
+        width: 100
+        height: parent.height
+        border.color: "#000"
+
+        Label {
+            id: canvasName
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: 5
+
+            text: "Canvas Name"
+        }
+
+        Label {
+            id: currentFrameName
+            anchors.top: canvasName.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: 5
+
+            text: "Current Frame Name"
         }
     }
 }
