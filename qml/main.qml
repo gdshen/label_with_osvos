@@ -193,6 +193,7 @@ ApplicationWindow {
     Image {
         id: image
         anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
     }
 
     Canvas {
@@ -313,7 +314,7 @@ ApplicationWindow {
             var closestPoint = null
             var distance = 0
             for (var i = 0; i < points.length; i++) {
-                var pointsOfOneBezierLine = [points[i].startPoint, points[i].controlPoint, points[i].targetPoint]
+                var pointsOfOneBezierLine = [points[i].startPoint, points[i].targetPoint, points[i].controlPoint]
                 for (var j = 0; j < 3; j++) {
                     distance = computeDistance(pointToCompare,
                                                pointsOfOneBezierLine[j])
