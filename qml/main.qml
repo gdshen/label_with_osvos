@@ -37,7 +37,7 @@ ApplicationWindow {
         onAccepted: {
             image.source = file
             console.log("You chose: " + file)
-            statusBarLabel.text = "Image width " + image.width + " height " + image.height
+            statusBar.text = "Image width " + image.width + " height " + image.height
                     + "; canvas width " + canvas.width + " height " + canvas.height
         }
         onRejected: {
