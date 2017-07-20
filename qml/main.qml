@@ -39,6 +39,7 @@ ApplicationWindow {
             console.log("You chose: " + file)
             statusBar.text = "Image width " + image.width + " height " + image.height
                     + "; canvas width " + canvas.width + " height " + canvas.height
+            area.focus = true
         }
         onRejected: {
             console.log("Cancle")
@@ -201,6 +202,7 @@ ApplicationWindow {
         width: image.width
         height: image.height
         anchors.horizontalCenter: image.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
         property var startPoint: {
             X: 0
             Y: 0
