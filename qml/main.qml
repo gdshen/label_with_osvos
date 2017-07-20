@@ -1,8 +1,8 @@
-import QtQuick 2.7
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.0
-import QtQuick.Dialogs 1.1
-import QtQuick.Window 2.1
+import QtQuick 2.9
+import QtQuick.Controls 2.2
+import QtQuick.Layouts 1.3
+import QtQuick.Window 2.3
+import Qt.labs.platform 1.0
 
 ApplicationWindow {
     id: mainwindow
@@ -16,14 +16,15 @@ ApplicationWindow {
     //    minimumHeight: 300
     title: "Label with OSVOS"
 
+    // this filedialog from qt.labs.platform
     FileDialog {
-        id: fileDialog
-        title: "Open a directory"
-        selectExisting: true
-        folder: shortcuts.home
+        id: openDialog
+        fileMode: FileDialog.OpenFile
+        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
+        nameFilters: ["JPEG files (*.jpg)", "PNG files (*.png)"]
         onAccepted: {
-            image.source = fileDialog.fileUrl
-            console.log("You chose: " + fileDialog.fileUrl)
+            image.source = file
+            console.log("You chose: " + file)
             statusBarLabel.text = "Image width " + image.width + " height " + image.height
                     + "; canvas width " + canvas.width + " height " + canvas.height
         }
@@ -33,13 +34,14 @@ ApplicationWindow {
     }
 
     FileDialog {
-        id: fileSaveDialog
-        title: "Save file as"
-        selectExisting: false
+        id: saveDialog
+        fileMode: FileDialog.SaveFile
+        defaultSuffix: "png"
+        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
         onAccepted: {
-            console.log("Save file as " + fileSaveDialog.fileUrl.toString(
-                            ).slice(7)) // convert url to pure filename
-            var result = canvas.save(fileSaveDialog.fileUrl.toString().slice(7))
+            console.log("Save file as " + file.toString().slice(
+                            7)) // convert url to pure filename
+            var result = canvas.save(file.toString().slice(7))
             console.log("Save " + result)
         }
         onRejected: {
@@ -47,136 +49,127 @@ ApplicationWindow {
         }
     }
 
-    Action {
-        id: fileOpenAction
-        text: "Open"
-        shortcut: StandardKey.Open
-        onTriggered: {
-            //            fileDialog.selectFolder = true
-            fileDialog.open()
-        }
+    function setStatusBarContent(content) {
+        statusBar.text = content
     }
 
-    Action {
-        id: saveCurrentCanvas
-        text: "Save"
-        shortcut: StandardKey.Save
-        onTriggered: {
-            fileSaveDialog.open()
-        }
-    }
-
-    Action {
-        id: fillAction
-        text: "Fill"
-        onTriggered: {
-            canvas.fillTheRegion = true
-            canvas.requestPaint()
-        }
-    }
-
-    Action {
-        id: clearAction
-        text: "Clear"
-        onTriggered: {
-            canvas.points = []
-            canvas.fillTheRegion = false
-            canvas.firstPoint = true
-            console.log("Clear")
-            canvas.requestPaint()
-        }
-    }
-
-    Action {
-        id: undoAction
-        text: "Undo"
-        shortcut: StandardKey.Undo
-        onTriggered: {
-            canvas.points.pop()
-            canvas.requestPaint()
-        }
-    }
-
-    Action {
-        id: runOSVOSAction
-        text: "run"
-        onTriggered: {
-            console.log("run osvos")
-            mainwindow.runOSVOS("a long message")
-        }
-    }
-
-    menuBar: MenuBar {
+    MenuBar {
         Menu {
-            title: "&File"
+            title: qsTr("&File")
             MenuItem {
-                action: fileOpenAction
+                text: qsTr("&Open")
+                onTriggered: console.log("File open") // todo
             }
             MenuItem {
-                action: saveCurrentCanvas
+                text: qsTr("&Save as...")
+                onTriggered: console.log("File save") //todo
             }
             MenuItem {
-                text: "Quit"
-                shortcut: StandardKey.Quit
+                text: qsTr("&Quit")
                 onTriggered: Qt.quit()
             }
         }
         Menu {
-            title: "&Action"
+            title: qsTr("&Action")
             MenuItem {
-                action: undoAction
+                text: qsTr("Undo")
+                onTriggered: console.log("undo") // todo
             }
             MenuItem {
-                action: clearAction
+                text: qsTr("Clear")
+                onTriggered: console.log("clear") // todo
             }
         }
         Menu {
-            title: "OSVOS"
+            title: qsTr("OSVOS")
             MenuItem {
-                action: runOSVOSAction
+                text: "Run OSVOS"
+                onTriggered: console.log("run osvos") // todo
             }
         }
     }
 
-    toolBar: ToolBar {
-        id: mainToolBar
-        width: parent.width
-        RowLayout {
-            anchors.fill: parent
-            spacing: 0
-            ToolButton {
-                action: fileOpenAction
+    header: ToolBar {
+        leftPadding: 8
+
+        Flow {
+            id: flow
+            width: parent.width
+
+            Row {
+                id: fileRow
+                ToolButton {
+                    id: openButton
+                    text: "Open" // todo, change font
+                    onClicked: openDialog.open()
+                }
+                ToolButton {
+                    id: saveButton
+                    text: "Save"
+                    onClicked: saveDialog.open()
+                }
+
+                ToolSeparator {
+                    contentItem.visible: fileRow.y === actionRow.y
+                }
             }
-            ToolButton {
-                action: saveCurrentCanvas
+
+            Row {
+                id: actionRow
+                ToolButton {
+                    id: undoButton
+                    text: "undo" // todo
+                    onClicked: {
+                        canvas.points.pop()
+                        canvas.requestPaint()
+                    }
+                }
+                ToolButton {
+                    id: fillButton
+                    text: "fill"
+                    onClicked: {
+                        canvas.fillTheRegion = true
+                        canvas.requestPaint()
+                    }
+                }
+                ToolButton {
+                    id: clearButton
+                    text: "clear"
+                    onClicked: {
+                        canvas.points = []
+                        canvas.fillTheRegion = false
+                        canvas.firstPoint = true
+                        console.log("clear")
+                        canvas.requestPaint()
+                    }
+                }
+
+                ToolSeparator {
+                    contentItem.visible: actionRow.y === osvosRow.y
+                }
             }
-            ToolButton {
-                action: fillAction
-            }
-            ToolButton {
-                action: undoAction
-            }
-            ToolButton {
-                action: clearAction
-            }
-            ToolButton {
-                action: runOSVOSAction
+
+            Row {
+                id: osvosRow
+                ToolButton {
+                    id: runOSVOSButton
+                    text: "osvos"
+                    onClicked: {
+                        console.log("run osvos")
+                        mainwindow.runOSVOS("a long message")
+                    }
+                }
             }
         }
     }
 
-    statusBar: StatusBar {
-        RowLayout {
-            anchors.fill: parent
-            Label {
-                id: statusBarLabel
-                text: "Status Bar"
-            }
-        }
-    }
+    footer: ToolBar {
+        height: 20
 
-    function setStatusBarContent(content) {
-        statusBarLabel.text = content
+        Label {
+            id: statusBar
+            width: parent.width
+        }
     }
 
     Image {
