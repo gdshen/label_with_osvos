@@ -197,205 +197,190 @@ ApplicationWindow {
         }
     }
 
-    Image {
-        id: image
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.margins: 40
-        //        anchors.verticalCenter: parent.verticalCenter
+    Rectangle {
+        anchors.left: parent.left
+        anchors.right: infoRect.left
         anchors.top: parent.top
-        transform: Scale {
-            id: imageScale
-            xScale: 1
-            yScale: 1
-        }
-    }
+        anchors.bottom: imageGallery.top
 
-    Canvas {
-        id: canvas
-        width: image.width
-        height: image.height
-        transform: Scale {
-            id: canvasScale
-            xScale: 1
-            yScale: 1
-        }
-        anchors.top: parent.top
-        anchors.horizontalCenter: image.horizontalCenter
-        anchors.margins: 40
-        //        anchors.verticalCenter: parent.verticalCenter
-        property var startPoint: {
-            X: 0
-            Y: 0
-        }
-        property var controlPoint: {
-            X: 0
-            Y: 0
-        }
-        property real targetPoint: {
-            X: 0
-            Y: 0
-        }
+        anchors.margins: 5
+        color: "#000"
+        border.width: 2
+        clip: true
 
-        property bool firstPoint: true
-
-        property var points: []
-        property color bezierLineColor: "#000"
-        property color controlLineColor: "#0FF"
-        property color rectColor: "#F00"
-        property real rectWidth: 5
-        property bool controlPressed: false
-        property bool altPressed: false
-        property int distanceThrehold: 10000
-        property bool pointModifyMode: false
-        property var pointToMove: null
-        property bool drawAdditionalInformation: true
-        property bool fillTheRegion: false
-
-        onPaint: {
-            var ctx = canvas.getContext("2d")
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
-            if (fillTheRegion) {
-                ctx.fillStyle = '#fff'
-                ctx.beginPath()
-                ctx.moveTo(points[0].startPoint.X, points[0].startPoint.Y)
-                for (var i = 0; i < points.length; i++) {
-                    ctx.quadraticCurveTo(points[i].controlPoint.X,
-                                         points[i].controlPoint.Y,
-                                         points[i].targetPoint.X,
-                                         points[i].targetPoint.Y)
-                }
-                ctx.fill()
-                return
-            }
-
-            ctx.lineWidth = 1.5
-            //            console.log("Painting" + points.length)
-            for (var i = 0; i < points.length; i++) {
-                var point = points[i]
-
-                // draw bezier curve
-                ctx.beginPath()
-                ctx.strokeStyle = canvas.bezierLineColor
-                ctx.moveTo(point.startPoint.X, point.startPoint.Y)
-                ctx.quadraticCurveTo(point.controlPoint.X,
-                                     point.controlPoint.Y, point.targetPoint.X,
-                                     point.targetPoint.Y)
-                ctx.stroke()
-
-                if (drawAdditionalInformation) {
-                    // draw the control line
-                    ctx.beginPath()
-                    ctx.strokeStyle = canvas.controlLineColor
-                    ctx.moveTo(point.targetPoint.X, point.targetPoint.Y)
-                    ctx.lineTo(point.controlPoint.X, point.controlPoint.Y)
-                    ctx.stroke()
-
-                    // draw the rect for the target point
-                    ctx.beginPath()
-                    ctx.strokeStyle = canvas.rectColor
-                    ctx.rect(point.targetPoint.X, point.targetPoint.Y,
-                             rectWidth, rectWidth)
-                    ctx.stroke()
-
-                    // draw the rect for the control point
-                    ctx.beginPath()
-                    ctx.strokeStyle = canvas.rectColor
-                    ctx.rect(point.controlPoint.X, point.controlPoint.Y,
-                             rectWidth, rectWidth)
-                    ctx.stroke()
-                }
+        Image {
+            id: image
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.margins: 40
+            //        anchors.verticalCenter: parent.verticalCenter
+            anchors.top: parent.top
+            transform: Scale {
+                id: imageScale
+                xScale: 1
+                yScale: 1
             }
         }
 
-        function printPoints() {
-            var message = ''
-            for (var i = 0; i < points.length; i++) {
-                var startPoint = points[i].startPoint
-                var controlPoint = points[i].controlPoint
-                var targetPoint = points[i].targetPoint
-                message = message.concat('((', startPoint.X, ',',
-                                         startPoint.Y, '),(',
-                                         controlPoint.X, ',',
-                                         controlPoint.Y, '),(',
-                                         targetPoint.X, ',',
-                                         targetPoint.Y, ')) ----')
+        Canvas {
+            id: canvas
+            width: image.width
+            height: image.height
+            transform: Scale {
+                id: canvasScale
+                xScale: 1
+                yScale: 1
             }
-            console.log(message)
-        }
+            anchors.top: parent.top
+            anchors.horizontalCenter: image.horizontalCenter
+            anchors.margins: 40
+            //        anchors.verticalCenter: parent.verticalCenter
+            property var startPoint: {
+                X: 0
+                Y: 0
+            }
+            property var controlPoint: {
+                X: 0
+                Y: 0
+            }
+            property real targetPoint: {
+                X: 0
+                Y: 0
+            }
 
-        function computeDistance(point1, point2) {
-            var deltaX = point1.X - point2.X
-            var deltaY = point1.X - point2.X
-            var distance = deltaX * deltaX + deltaY
-                    * deltaY // return square distance, to keep distance as an integer
-            return distance
-        }
+            property bool firstPoint: true
 
-        function findClosedPoint(pointToCompare) {
-            var shortestDistance = Infinity
-            var closestPoint = null
-            var distance = 0
-            for (var i = 0; i < points.length; i++) {
-                var pointsOfOneBezierLine = [points[i].startPoint, points[i].targetPoint, points[i].controlPoint]
-                for (var j = 0; j < 3; j++) {
-                    distance = computeDistance(pointToCompare,
-                                               pointsOfOneBezierLine[j])
-                    if (distance <= shortestDistance) {
-                        shortestDistance = distance
-                        closestPoint = pointsOfOneBezierLine[j]
+            property var points: []
+            property color bezierLineColor: "#000"
+            property color controlLineColor: "#0FF"
+            property color rectColor: "#F00"
+            property real rectWidth: 5
+            property bool controlPressed: false
+            property bool altPressed: false
+            property int distanceThrehold: 10000
+            property bool pointModifyMode: false
+            property var pointToMove: null
+            property bool drawAdditionalInformation: true
+            property bool fillTheRegion: false
+
+            onPaint: {
+                var ctx = canvas.getContext("2d")
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                if (fillTheRegion) {
+                    ctx.fillStyle = '#fff'
+                    ctx.beginPath()
+                    ctx.moveTo(points[0].startPoint.X, points[0].startPoint.Y)
+                    for (var i = 0; i < points.length; i++) {
+                        ctx.quadraticCurveTo(points[i].controlPoint.X,
+                                             points[i].controlPoint.Y,
+                                             points[i].targetPoint.X,
+                                             points[i].targetPoint.Y)
                     }
-                }
-            }
-            return closestPoint
-        }
-
-        MouseArea {
-            id: area
-            anchors.fill: parent
-            focus: true // to enable the keyevent, the focus property must be set to true
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-            onPressed: {
-                if (pressedButtons === Qt.RightButton) {
-                    console.log("Pressed right button")
-                    canvas.drawAdditionalInformation = !canvas.drawAdditionalInformation
-                    canvas.requestPaint()
+                    ctx.fill()
                     return
                 }
 
-                console.log("MouseX: " + mouseX + " MouseY: " + mouseY)
-                console.log("onPressed altPressed" + canvas.altPressed)
-                if (canvas.altPressed) {
-                    console.log("enter alt pressed mode")
-                    var currentPoint = {
-                        X: mouseX,
-                        Y: mouseY
+                ctx.lineWidth = 1.5
+                //            console.log("Painting" + points.length)
+                for (var i = 0; i < points.length; i++) {
+                    var point = points[i]
+
+                    // draw bezier curve
+                    ctx.beginPath()
+                    ctx.strokeStyle = canvas.bezierLineColor
+                    ctx.moveTo(point.startPoint.X, point.startPoint.Y)
+                    ctx.quadraticCurveTo(point.controlPoint.X,
+                                         point.controlPoint.Y,
+                                         point.targetPoint.X,
+                                         point.targetPoint.Y)
+                    ctx.stroke()
+
+                    if (drawAdditionalInformation) {
+                        // draw the control line
+                        ctx.beginPath()
+                        ctx.strokeStyle = canvas.controlLineColor
+                        ctx.moveTo(point.targetPoint.X, point.targetPoint.Y)
+                        ctx.lineTo(point.controlPoint.X, point.controlPoint.Y)
+                        ctx.stroke()
+
+                        // draw the rect for the target point
+                        ctx.beginPath()
+                        ctx.strokeStyle = canvas.rectColor
+                        ctx.rect(point.targetPoint.X, point.targetPoint.Y,
+                                 rectWidth, rectWidth)
+                        ctx.stroke()
+
+                        // draw the rect for the control point
+                        ctx.beginPath()
+                        ctx.strokeStyle = canvas.rectColor
+                        ctx.rect(point.controlPoint.X, point.controlPoint.Y,
+                                 rectWidth, rectWidth)
+                        ctx.stroke()
                     }
-                    var point = canvas.findClosedPoint(currentPoint)
-                    var distance = canvas.computeDistance(currentPoint, point)
-                    console.log("Distance is " + distance)
-                    if (distance < canvas.distanceThrehold) {
-                        canvas.pointModifyMode = true
-                        canvas.pointToMove = point
+                }
+            }
+
+            function printPoints() {
+                var message = ''
+                for (var i = 0; i < points.length; i++) {
+                    var startPoint = points[i].startPoint
+                    var controlPoint = points[i].controlPoint
+                    var targetPoint = points[i].targetPoint
+                    message = message.concat('((', startPoint.X, ',',
+                                             startPoint.Y, '),(',
+                                             controlPoint.X, ',',
+                                             controlPoint.Y, '),(',
+                                             targetPoint.X, ',',
+                                             targetPoint.Y, ')) ----')
+                }
+                console.log(message)
+            }
+
+            function computeDistance(point1, point2) {
+                var deltaX = point1.X - point2.X
+                var deltaY = point1.X - point2.X
+                var distance = deltaX * deltaX + deltaY
+                        * deltaY // return square distance, to keep distance as an integer
+                return distance
+            }
+
+            function findClosedPoint(pointToCompare) {
+                var shortestDistance = Infinity
+                var closestPoint = null
+                var distance = 0
+                for (var i = 0; i < points.length; i++) {
+                    var pointsOfOneBezierLine = [points[i].startPoint, points[i].targetPoint, points[i].controlPoint]
+                    for (var j = 0; j < 3; j++) {
+                        distance = computeDistance(pointToCompare,
+                                                   pointsOfOneBezierLine[j])
+                        if (distance <= shortestDistance) {
+                            shortestDistance = distance
+                            closestPoint = pointsOfOneBezierLine[j]
+                        }
                     }
-                } else if (canvas.firstPoint) {
-                    canvas.points.push({
-                                           startPoint: {
-                                               X: mouseX,
-                                               Y: mouseY
-                                           },
-                                           controlPoint: {
-                                               X: mouseX,
-                                               Y: mouseY
-                                           },
-                                           targetPoint: {
-                                               X: mouseX,
-                                               Y: mouseY
-                                           }
-                                       })
-                } else {
-                    if (canvas.controlPressed) {
-                        console.log("enter control pressed mode")
+                }
+                return closestPoint
+            }
+
+            MouseArea {
+                id: area
+                anchors.fill: parent
+                focus: true // to enable the keyevent, the focus property must be set to true
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                onPressed: {
+                    console.log("Information of position after translation "
+                                + mouseX + " " + mouseY)
+                    if (pressedButtons === Qt.RightButton) {
+                        console.log("Pressed right button")
+                        canvas.drawAdditionalInformation = !canvas.drawAdditionalInformation
+                        canvas.requestPaint()
+                        return
+                    }
+
+                    console.log("MouseX: " + mouseX + " MouseY: " + mouseY)
+                    console.log("onPressed altPressed" + canvas.altPressed)
+                    if (canvas.altPressed) {
+                        console.log("enter alt pressed mode")
                         var currentPoint = {
                             X: mouseX,
                             Y: mouseY
@@ -405,20 +390,15 @@ ApplicationWindow {
                                                               point)
                         console.log("Distance is " + distance)
                         if (distance < canvas.distanceThrehold) {
-                            canvas.points.push({
-                                                   startPoint: canvas.points[canvas.points.length
-                                                       - 1].targetPoint,
-                                                   controlPoint: {
-                                                       X: mouseX,
-                                                       Y: mouseY
-                                                   },
-                                                   targetPoint: point
-                                               })
+                            canvas.pointModifyMode = true
+                            canvas.pointToMove = point
                         }
-                    } else {
+                    } else if (canvas.firstPoint) {
                         canvas.points.push({
-                                               startPoint: canvas.points[canvas.points.length
-                                                   - 1].targetPoint,
+                                               startPoint: {
+                                                   X: mouseX,
+                                                   Y: mouseY
+                                               },
                                                controlPoint: {
                                                    X: mouseX,
                                                    Y: mouseY
@@ -428,90 +408,124 @@ ApplicationWindow {
                                                    Y: mouseY
                                                }
                                            })
+                    } else {
+                        if (canvas.controlPressed) {
+                            console.log("enter control pressed mode")
+                            var currentPoint = {
+                                X: mouseX,
+                                Y: mouseY
+                            }
+                            var point = canvas.findClosedPoint(currentPoint)
+                            var distance = canvas.computeDistance(currentPoint,
+                                                                  point)
+                            console.log("Distance is " + distance)
+                            if (distance < canvas.distanceThrehold) {
+                                canvas.points.push({
+                                                       startPoint: canvas.points[canvas.points.length - 1].targetPoint,
+                                                       controlPoint: {
+                                                           X: mouseX,
+                                                           Y: mouseY
+                                                       },
+                                                       targetPoint: point
+                                                   })
+                            }
+                        } else {
+                            canvas.points.push({
+                                                   startPoint: canvas.points[canvas.points.length
+                                                       - 1].targetPoint,
+                                                   controlPoint: {
+                                                       X: mouseX,
+                                                       Y: mouseY
+                                                   },
+                                                   targetPoint: {
+                                                       X: mouseX,
+                                                       Y: mouseY
+                                                   }
+                                               })
+                        }
                     }
                 }
-            }
 
-            onReleased: {
-                if (canvas.pointModifyMode) {
-                    canvas.pointModifyMode = false
-                } else {
+                onReleased: {
+                    if (canvas.pointModifyMode) {
+                        canvas.pointModifyMode = false
+                    } else {
 
-                    console.log(canvas.points.length)
-                    canvas.points[canvas.points.length - 1].controlPoint.X = mouseX
-                    canvas.points[canvas.points.length - 1].controlPoint.Y = mouseY
-                    if (canvas.firstPoint) {
-                        canvas.firstPoint = false
+                        console.log(canvas.points.length)
+                        canvas.points[canvas.points.length - 1].controlPoint.X = mouseX
+                        canvas.points[canvas.points.length - 1].controlPoint.Y = mouseY
+                        if (canvas.firstPoint) {
+                            canvas.firstPoint = false
+                        }
                     }
+                    canvas.requestPaint()
                 }
-                canvas.requestPaint()
-            }
 
-            onPositionChanged: {
-                console.log("point modify mode " + canvas.pointModifyMode)
-                if (canvas.pointModifyMode) {
-                    var currentPoint = {
-                        X: mouseX,
-                        Y: mouseY
+                onPositionChanged: {
+                    console.log("point modify mode " + canvas.pointModifyMode)
+                    if (canvas.pointModifyMode) {
+                        var currentPoint = {
+                            X: mouseX,
+                            Y: mouseY
+                        }
+                        // diffferent from canvas.pointToMove = currentPoint // pass by value vs. pass by reference
+                        canvas.pointToMove.X = currentPoint.X
+                        canvas.pointToMove.Y = currentPoint.Y
+
+                        canvas.printPoints()
+                    } else {
+                        canvas.points[canvas.points.length - 1].controlPoint.X = mouseX
+                        canvas.points[canvas.points.length - 1].controlPoint.Y = mouseY
                     }
-                    // diffferent from canvas.pointToMove = currentPoint // pass by value vs. pass by reference
-                    canvas.pointToMove.X = currentPoint.X
-                    canvas.pointToMove.Y = currentPoint.Y
+                    canvas.requestPaint()
+                }
+                Keys.onPressed: {
+                    if (event.key === Qt.Key_Control) {
+                        console.log("Pressed Control")
+                        canvas.controlPressed = true
+                    }
+                    if (event.key === Qt.Key_Alt) {
+                        console.log("Pressed alt")
+                        canvas.altPressed = true
+                        console.log("ALtPressed " + canvas.altPressed)
+                    }
+                    if (event.key === Qt.Key_Space) {
+                        console.log("Pressed space")
+                    }
 
-                    canvas.printPoints()
-                } else {
-                    canvas.points[canvas.points.length - 1].controlPoint.X = mouseX
-                    canvas.points[canvas.points.length - 1].controlPoint.Y = mouseY
-                }
-                canvas.requestPaint()
-            }
-            Keys.onPressed: {
-                if (event.key === Qt.Key_Control) {
-                    console.log("Pressed Control")
-                    canvas.controlPressed = true
-                }
-                if (event.key === Qt.Key_Alt) {
-                    console.log("Pressed alt")
-                    canvas.altPressed = true
-                    console.log("ALtPressed " + canvas.altPressed)
-                }
-                if (event.key === Qt.Key_Space) {
-                    console.log("Pressed space")
+                    event.accepted = true
                 }
 
-                event.accepted = true
-            }
-
-            Keys.onReleased: {
-                if (event.key === Qt.Key_Control) {
-                    console.log("Release control")
-                    canvas.controlPressed = false
+                Keys.onReleased: {
+                    if (event.key === Qt.Key_Control) {
+                        console.log("Release control")
+                        canvas.controlPressed = false
+                    }
+                    if (event.key === Qt.Key_Alt) {
+                        console.log("Release alt")
+                        canvas.altPressed = false
+                    }
+                    event.accpeted = true
                 }
-                if (event.key === Qt.Key_Alt) {
-                    console.log("Release alt")
-                    canvas.altPressed = false
-                }
-                event.accpeted = true
-            }
 
-            onWheel: {
-                if (canvas.controlPressed) {
-                    console.log("current x is " + wheel.x + " " + wheel.y)
-                    console.log("whell angleDelta.y is " + wheel.angleDelta.y)
-                    imageScale.xScale += wheel.angleDelta.y / 1200
-                    imageScale.yScale += wheel.angleDelta.y / 1200
-                    imageScale.origin.x = wheel.x
-                    imageScale.origin.y = wheel.y
+                onWheel: {
+                    if (canvas.controlPressed) {
+                        console.log("current x is " + wheel.x + " " + wheel.y)
+                        console.log("whell angleDelta.y is " + wheel.angleDelta.y)
+                        imageScale.xScale += wheel.angleDelta.y / 1200
+                        imageScale.yScale += wheel.angleDelta.y / 1200
+                        imageScale.origin.x = wheel.x
+                        imageScale.origin.y = wheel.y
 
-                    canvasScale.xScale += wheel.angleDelta.y / 1200
-                    canvasScale.yScale += wheel.angleDelta.y / 1200
-                    canvasScale.origin.x = wheel.x
-                    canvasScale.origin.y = wheel.y
+                        canvasScale.xScale += wheel.angleDelta.y / 1200
+                        canvasScale.yScale += wheel.angleDelta.y / 1200
+                        canvasScale.origin.x = wheel.x
+                        canvasScale.origin.y = wheel.y
+                    }
                 }
             }
         }
     }
-
     ListModel {
         id: listModel
     }
