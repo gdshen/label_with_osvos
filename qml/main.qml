@@ -273,7 +273,7 @@ ApplicationWindow {
             property real rectWidth: 5
             property bool controlPressed: false
             property bool altPressed: false
-            property bool spacePressed: false
+            property bool shiftPressed: false
             property int distanceThrehold: 10000
             property bool pointModifyMode: false
             property var pointToMove: null
@@ -388,7 +388,7 @@ ApplicationWindow {
                 onPressed: {
                     canvas.lastX = mouseX
                     canvas.lastY = mouseY
-                    if (canvas.spacePressed) {
+                    if (canvas.shiftPressed) {
                         return
                     }
 
@@ -471,7 +471,7 @@ ApplicationWindow {
                 }
 
                 onReleased: {
-                    if (canvas.spacePressed) {
+                    if (canvas.shiftPressed) {
                         return
                     }
 
@@ -493,15 +493,15 @@ ApplicationWindow {
                     console.log("point modify mode " + canvas.pointModifyMode)
 
                     // process image translation
-                    if (canvas.spacePressed) {
+                    if (canvas.shiftPressed) {
                         var deltaX = mouseX - canvas.lastX
                         var deltaY = mouseY - canvas.lastY
                         imageTranslate.x += deltaX
                         imageTranslate.y += deltaY
                         canvasTranslate.x += deltaX
                         canvasTranslate.y += deltaY
-                        canvas.lastX = mouseX
-                        canvas.lastY = mouseY
+                        //                        canvas.lastX = mouseX
+                        //                        canvas.lastY = mouseY
                         return
                     }
 
@@ -532,9 +532,9 @@ ApplicationWindow {
                         canvas.altPressed = true
                         console.log("ALtPressed " + canvas.altPressed)
                     }
-                    if (event.key === Qt.Key_Space) {
-                        canvas.spacePressed = true
-                        console.log("Pressed space")
+                    if (event.key === Qt.Key_Shift) {
+                        canvas.shiftPressed = true
+                        console.log("Pressed Shift")
                     }
 
                     event.accepted = true
@@ -549,9 +549,9 @@ ApplicationWindow {
                         console.log("Release alt")
                         canvas.altPressed = false
                     }
-                    if (event.key === Qt.Key_Space) {
-                        canvas.spacePressed = false
-                        console.log("Release space")
+                    if (event.key === Qt.Key_Shift) {
+                        canvas.shiftPressed = false
+                        console.log("Release Shift")
                     }
 
                     event.accpeted = true
