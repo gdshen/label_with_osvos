@@ -1,0 +1,5 @@
+tensorflow-gpu
+pyqt5
+numpy
+svgwrite
+svgpathtools

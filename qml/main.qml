@@ -18,6 +18,7 @@ ApplicationWindow {
     height: 480
 
     signal runOSVOS(string message)
+    signal savePointsAsSVG(var points, int size, string filename)
 
     //    minimumWidth: 400
     //    minimumHeight: 300
@@ -182,7 +183,10 @@ ApplicationWindow {
                     font.family: "fontello"
                     onClicked: {
                         console.log("run osvos")
-                        mainwindow.runOSVOS("a long message")
+                        //                        mainwindow.runOSVOS("a long message")
+                        mainwindow.savePointsAsSVG(canvas.points,
+                                                   canvas.points.length,
+                                                   openDialog.file)
                     }
                 }
             }
