@@ -39,6 +39,7 @@ ApplicationWindow {
             console.log("You chose: " + file)
             statusBar.text = "Image width " + image.width + " height " + image.height
                     + "; canvas width " + canvas.width + " height " + canvas.height
+            listModel.clear()
             for (var i = 0; i < files.length; i++) {
                 listModel.append({
                                      imageSrc: files[i]
