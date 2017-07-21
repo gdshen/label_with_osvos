@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     def save_points_as_svg_handler(points, size, filename):
         # filename like file:///home/gdshen/Pictures/00000.jpg
-        filename = filename.split('/')[-1].split('.')[0] + 'svg'
+        filename = filename.split('/')[-1].split('.')[0] + '.svg'
         paths = []
         for i in range(size):
             start_point_x = points.property(i).property('startPoint').property('X').toInt()
