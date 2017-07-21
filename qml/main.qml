@@ -214,25 +214,42 @@ ApplicationWindow {
             anchors.margins: 40
             //        anchors.verticalCenter: parent.verticalCenter
             anchors.top: parent.top
-            transform: Scale {
-                id: imageScale
-                xScale: 1
-                yScale: 1
-            }
+            transform: [
+                Scale {
+                    id: imageScale
+                    xScale: 1
+                    yScale: 1
+                },
+                Translate {
+                    id: imageTranslate
+                    x: 0
+                    y: 0
+                }
+            ]
         }
 
         Canvas {
             id: canvas
             width: image.width
             height: image.height
-            transform: Scale {
-                id: canvasScale
-                xScale: 1
-                yScale: 1
-            }
+            transform: [
+                Scale {
+                    id: canvasScale
+                    xScale: 1
+                    yScale: 1
+                },
+                Translate {
+                    id: canvasTranslate
+                    x: 0
+                    y: 0
+                }
+            ]
             anchors.top: parent.top
             anchors.horizontalCenter: image.horizontalCenter
             anchors.margins: 40
+
+            property real lastX
+            property real lastY
             //        anchors.verticalCenter: parent.verticalCenter
             property var startPoint: {
                 X: 0
@@ -256,6 +273,7 @@ ApplicationWindow {
             property real rectWidth: 5
             property bool controlPressed: false
             property bool altPressed: false
+            property bool spacePressed: false
             property int distanceThrehold: 10000
             property bool pointModifyMode: false
             property var pointToMove: null
@@ -368,6 +386,12 @@ ApplicationWindow {
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
 
                 onPressed: {
+                    canvas.lastX = mouseX
+                    canvas.lastY = mouseY
+                    if (canvas.spacePressed) {
+                        return
+                    }
+
                     console.log("Information of position after translation "
                                 + mouseX + " " + mouseY)
                     if (pressedButtons === Qt.RightButton) {
@@ -447,6 +471,10 @@ ApplicationWindow {
                 }
 
                 onReleased: {
+                    if (canvas.spacePressed) {
+                        return
+                    }
+
                     if (canvas.pointModifyMode) {
                         canvas.pointModifyMode = false
                     } else {
@@ -463,6 +491,21 @@ ApplicationWindow {
 
                 onPositionChanged: {
                     console.log("point modify mode " + canvas.pointModifyMode)
+
+                    // process image translation
+                    if (canvas.spacePressed) {
+                        var deltaX = mouseX - canvas.lastX
+                        var deltaY = mouseY - canvas.lastY
+                        imageTranslate.x += deltaX
+                        imageTranslate.y += deltaY
+                        canvasTranslate.x += deltaX
+                        canvasTranslate.y += deltaY
+                        canvas.lastX = mouseX
+                        canvas.lastY = mouseY
+                        return
+                    }
+
+                    // process point modify or controlpoint movement
                     if (canvas.pointModifyMode) {
                         var currentPoint = {
                             X: mouseX,
@@ -490,6 +533,7 @@ ApplicationWindow {
                         console.log("ALtPressed " + canvas.altPressed)
                     }
                     if (event.key === Qt.Key_Space) {
+                        canvas.spacePressed = true
                         console.log("Pressed space")
                     }
 
@@ -505,6 +549,11 @@ ApplicationWindow {
                         console.log("Release alt")
                         canvas.altPressed = false
                     }
+                    if (event.key === Qt.Key_Space) {
+                        canvas.spacePressed = false
+                        console.log("Release space")
+                    }
+
                     event.accpeted = true
                 }
 
