@@ -39,6 +39,12 @@ ApplicationWindow {
             console.log("You chose: " + file)
             statusBar.text = "Image width " + image.width + " height " + image.height
                     + "; canvas width " + canvas.width + " height " + canvas.height
+            for (var i = 0; i < files.length; i++) {
+                listModel.append({
+                                     imageSrc: files[i]
+                                 })
+            }
+
             area.focus = true
         }
         onRejected: {
@@ -476,7 +482,43 @@ ApplicationWindow {
         }
     }
 
+    ListModel {
+        id: listModel
+    }
+
+    ListView {
+        id: imageGallery
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: infoRect.left
+        height: 100
+        spacing: 4
+        clip: true
+
+        model: listModel
+        orientation: ListView.Horizontal
+        delegate: singleImage
+
+        Component {
+            id: singleImage
+            Image {
+                height: ListView.height
+                width: 200
+
+                source: imageSrc
+                fillMode: Image.PreserveAspectFit
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        image.source = imageSrc
+                    }
+                }
+            }
+        }
+    }
+
     Rectangle {
+        id: infoRect
         anchors.right: parent.right
         width: 100
         height: parent.height
