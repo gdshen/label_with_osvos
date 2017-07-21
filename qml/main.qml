@@ -200,15 +200,29 @@ ApplicationWindow {
     Image {
         id: image
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.margins: 40
+        //        anchors.verticalCenter: parent.verticalCenter
+        anchors.top: parent.top
+        transform: Scale {
+            id: imageScale
+            xScale: 1
+            yScale: 1
+        }
     }
 
     Canvas {
         id: canvas
         width: image.width
         height: image.height
+        transform: Scale {
+            id: canvasScale
+            xScale: 1
+            yScale: 1
+        }
+        anchors.top: parent.top
         anchors.horizontalCenter: image.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.margins: 40
+        //        anchors.verticalCenter: parent.verticalCenter
         property var startPoint: {
             X: 0
             Y: 0
@@ -478,6 +492,22 @@ ApplicationWindow {
                     canvas.altPressed = false
                 }
                 event.accpeted = true
+            }
+
+            onWheel: {
+                if (canvas.controlPressed) {
+                    console.log("current x is " + wheel.x + " " + wheel.y)
+                    console.log("whell angleDelta.y is " + wheel.angleDelta.y)
+                    imageScale.xScale += wheel.angleDelta.y / 1200
+                    imageScale.yScale += wheel.angleDelta.y / 1200
+                    imageScale.origin.x = wheel.x
+                    imageScale.origin.y = wheel.y
+
+                    canvasScale.xScale += wheel.angleDelta.y / 1200
+                    canvasScale.yScale += wheel.angleDelta.y / 1200
+                    canvasScale.origin.x = wheel.x
+                    canvasScale.origin.y = wheel.y
+                }
             }
         }
     }
