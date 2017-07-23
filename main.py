@@ -15,13 +15,11 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtQml import QQmlEngine, QQmlComponent, QQmlApplicationEngine
 from PyQt5.QtQuick import QQuickView
 
-from svgpathtools import QuadraticBezier, Path, wsvg
+from svgpathtools import QuadraticBezier, Path, wsvg, svg2paths
 
 if __name__ == '__main__':
     myApp = QApplication(sys.argv)
     engine = QQmlApplicationEngine()
-    # context = engine.rootContext()
-    # context.setContextProperty()
     engine.load(QUrl('qml/main.qml'))
     main_window = engine.rootObjects()[0]
 
@@ -53,7 +51,23 @@ if __name__ == '__main__':
         wsvg(paths=paths, filename=filename)
 
 
+    def open_svg_file_load_points_handler(filename):
+        print(filename)
+        filename = filename[7:]
+
+        # parse svg file
+        points = []
+        paths, attributes = svg2paths(filename)
+        for path in paths:
+            bezier_curve = path[0]
+            points.append(
+                [bezier_curve.start.real, bezier_curve.start.imag, bezier_curve.control.real, bezier_curve.control.imag,
+                 bezier_curve.end.real, bezier_curve.end.imag])
+        main_window.changePoints(points)
+
+
     # main_window.runOSVOS.connect(osvos)
     main_window.savePointsAsSVG.connect(save_points_as_svg_handler)
+    main_window.openSVGFile.connect(open_svg_file_load_points_handler)
 
     sys.exit(myApp.exec_())

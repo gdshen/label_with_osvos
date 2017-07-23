@@ -19,6 +19,7 @@ ApplicationWindow {
 
     signal runOSVOS(string message)
     signal savePointsAsSVG(var points, int size, string filename)
+    signal openSVGFile(string filename)
 
     //    minimumWidth: 400
     //    minimumHeight: 300
@@ -27,6 +28,46 @@ ApplicationWindow {
     FontLoader {
         id: font
         source: "fonts/fontello.ttf"
+    }
+
+    function changePoints(svgPoints) {
+        canvas.points = []
+
+        if (svgPoints.length > 0) {
+            canvas.fillTheRegion = false
+            canvas.firstPoint = false
+
+            canvas.points.push({
+                                   startPoint: {
+                                       X: svgPoints[0][0],
+                                       Y: svgPoints[0][1]
+                                   },
+                                   controlPoint: {
+                                       X: svgPoints[0][2],
+                                       Y: svgPoints[0][3]
+                                   },
+                                   targetPoint: {
+                                       X: svgPoints[0][4],
+                                       Y: svgPoints[0][5]
+                                   }
+                               })
+        }
+
+        console.log('change points')
+        for (var i = 1; i < svgPoints.length; i++) {
+            canvas.points.push({
+                                   startPoint: canvas.points[i - 1].targetPoint,
+                                   controlPoint: {
+                                       X: svgPoints[i][2],
+                                       Y: svgPoints[i][3]
+                                   },
+                                   targetPoint: {
+                                       X: svgPoints[i][4],
+                                       Y: svgPoints[i][5]
+                                   }
+                               })
+        }
+        canvas.requestPaint()
     }
 
     // this filedialog from qt.labs.platform
@@ -51,6 +92,18 @@ ApplicationWindow {
         }
         onRejected: {
             console.log("Cancle")
+        }
+    }
+
+    FileDialog {
+        id: openSVGDialog
+        fileMode: FileDialog.OpenFile
+        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
+        nameFilters: ["SVG files (*.svg)"]
+        onAccepted: {
+            console.log('load svg')
+            openSVGFile(file)
+            area.focus = true
         }
     }
 
@@ -125,6 +178,15 @@ ApplicationWindow {
                     font.family: "fontello"
                     onClicked: openDialog.open()
                 }
+                ToolButton {
+                    id: svgOpenButton
+                    text: "\uF1C9"
+                    font.family: "fontello"
+                    onClicked: {
+                        openSVGDialog.open()
+                    }
+                }
+
                 ToolButton {
                     id: saveButton
                     text: "\uE800"
