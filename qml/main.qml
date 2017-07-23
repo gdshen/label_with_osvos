@@ -271,7 +271,7 @@ ApplicationWindow {
         anchors.bottom: imageGallery.top
 
         anchors.margins: 5
-        color: "#000"
+        //        color: "#000"
         border.width: 2
         clip: true
 
