@@ -17,7 +17,7 @@ ApplicationWindow {
     width: 640
     height: 480
 
-    signal runOSVOS(string message)
+    signal runOSVOS(string imgs_dir, string labels_dir)
     signal savePointsAsSVG(var points, int size, string filename)
     signal openSVGFile(string filename)
 
@@ -194,6 +194,17 @@ ApplicationWindow {
                     onClicked: saveDialog.open()
                 }
 
+                ToolButton {
+                    id: saveSVGButton
+                    text: "\uE804"
+                    font.family: "fontello"
+                    onClicked: {
+                        mainwindow.savePointsAsSVG(canvas.points,
+                                                   canvas.points.length,
+                                                   openDialog.file)
+                    }
+                }
+
                 ToolSeparator {
                     contentItem.visible: fileRow.y === actionRow.y
                 }
@@ -245,10 +256,9 @@ ApplicationWindow {
                     font.family: "fontello"
                     onClicked: {
                         console.log("run osvos")
-                        //                        mainwindow.runOSVOS("a long message")
-                        mainwindow.savePointsAsSVG(canvas.points,
-                                                   canvas.points.length,
-                                                   openDialog.file)
+                        mainwindow.runOSVOS(
+                                    "file:///home/gdshen/PycharmProjects/label_with_osvos/data/imgs",
+                                    "file:///home/gdshen/PycharmProjects/label_with_osvos/data/annotations")
                     }
                 }
             }

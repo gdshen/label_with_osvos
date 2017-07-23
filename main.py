@@ -24,11 +24,14 @@ if __name__ == '__main__':
     main_window = engine.rootObjects()[0]
 
 
-    def osvos(message):
+    def osvos(imgs_dir, labels_dir):
+        imgs_dir = imgs_dir[7:]
+        labels_dir = labels_dir[7:]
+        print(imgs_dir)
+        print(labels_dir)
         from osvos_demo import run_osvos
         main_window.setStatusBarContent("Training")
-        # run_osvos()
-        print("run osvos")
+        run_osvos(imgs_dir, labels_dir)
         main_window.setStatusBarContent("Finished")
 
 
@@ -66,7 +69,7 @@ if __name__ == '__main__':
         main_window.changePoints(points)
 
 
-    # main_window.runOSVOS.connect(osvos)
+    main_window.runOSVOS.connect(osvos)
     main_window.savePointsAsSVG.connect(save_points_as_svg_handler)
     main_window.openSVGFile.connect(open_svg_file_load_points_handler)
 
