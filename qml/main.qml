@@ -10,7 +10,7 @@ ApplicationWindow {
     visible: true
 
     Material.theme: Material.System
-    Material.primary: Material.Grey
+    Material.primary: "#FFFFFF"
     Material.foreground: "#444444"
     Material.accent: Material.Blue
 
@@ -618,9 +618,12 @@ ApplicationWindow {
     Rectangle {
         id: infoRect
         anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
         width: 100
-        height: parent.height
+        //        height: parent.height
         border.color: "#000"
+        anchors.margins: 5
 
         Label {
             id: canvasName
