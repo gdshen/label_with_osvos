@@ -96,6 +96,17 @@ ApplicationWindow {
     }
 
     FileDialog {
+        id: openOverlayDialog
+        fileMode: FileDialog.OpenFile
+        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
+        nameFilters: ["PNG files (*.png)"]
+        onAccepted: {
+            imageOverlay.source = file
+            area.focus = true
+        }
+    }
+
+    FileDialog {
         id: openSVGDialog
         fileMode: FileDialog.OpenFile
         folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
@@ -182,6 +193,12 @@ ApplicationWindow {
                     text: "\uF115"
                     font.family: "fontello"
                     onClicked: openDialog.open()
+                }
+                ToolButton {
+                    id: openOverlayButton
+                    text: "\uF115"
+                    font.family: "fontello"
+                    onClicked: openOverlayDialog.open()
                 }
                 ToolButton {
                     id: svgOpenButton
@@ -326,6 +343,26 @@ ApplicationWindow {
                 },
                 Translate {
                     id: imageTranslate
+                    x: 0
+                    y: 0
+                }
+            ]
+        }
+        Image {
+            id: imageOverlay
+            opacity: 0.5
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.margins: 40
+            //        anchors.verticalCenter: parent.verticalCenter
+            anchors.top: parent.top
+            transform: [
+                Scale {
+                    id: imageOverlayScale
+                    xScale: 1
+                    yScale: 1
+                },
+                Translate {
+                    id: imageOverlayTranslate
                     x: 0
                     y: 0
                 }
@@ -602,6 +639,10 @@ ApplicationWindow {
                         var deltaY = mouseY - canvas.lastY
                         imageTranslate.x += deltaX
                         imageTranslate.y += deltaY
+
+                        imageOverlayTranslate.x += deltaX
+                        imageOverlayTranslate.y += deltaY
+
                         canvasTranslate.x += deltaX
                         canvasTranslate.y += deltaY
                         //                        canvas.lastX = mouseX
@@ -669,6 +710,11 @@ ApplicationWindow {
                         imageScale.yScale += wheel.angleDelta.y / 1200
                         imageScale.origin.x = wheel.x
                         imageScale.origin.y = wheel.y
+
+                        imageOverlayScale.xScale += wheel.angleDelta.y / 1200
+                        imageOverlayScale.yScale += wheel.angleDelta.y / 1200
+                        imageOverlayScale.origin.x = wheel.x
+                        imageOverlayScale.origin.y = wheel.y
 
                         canvasScale.xScale += wheel.angleDelta.y / 1200
                         canvasScale.yScale += wheel.angleDelta.y / 1200
