@@ -127,6 +127,11 @@ ApplicationWindow {
         statusBar.text = content
     }
 
+    MessageDialog {
+        id: messageDialog
+        buttons: MessageDialog.Ok
+    }
+
     MenuBar {
         Menu {
             title: qsTr("&File")
@@ -202,6 +207,8 @@ ApplicationWindow {
                         mainwindow.savePointsAsSVG(canvas.points,
                                                    canvas.points.length,
                                                    image.source)
+                        messageDialog.text = "Save as svg file"
+                        messageDialog.open()
                     }
                 }
 
@@ -256,6 +263,8 @@ ApplicationWindow {
                     font.family: "fontello"
                     onClicked: {
                         console.log("run osvos")
+                        messageDialog.text = "start to run osvos model"
+                        messageDialog.open()
                         mainwindow.runOSVOS(
                                     "file:///home/gdshen/PycharmProjects/label_with_osvos/data/imgs",
                                     "file:///home/gdshen/PycharmProjects/label_with_osvos/data/annotations")
@@ -275,6 +284,8 @@ ApplicationWindow {
                     font.family: "fontello"
                     onClicked: {
                         console.log("click testnewrunction button")
+                        messageDialog.text = "click test button"
+                        messageDialog.open()
                     }
                 }
             }
