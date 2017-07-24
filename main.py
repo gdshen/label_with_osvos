@@ -31,7 +31,7 @@ if __name__ == '__main__':
         print(labels_dir)
         from osvos_demo import run_osvos
         main_window.setStatusBarContent("Training")
-        run_osvos(imgs_dir, labels_dir)
+        run_osvos(imgs_dir, labels_dir, max_training_iters=10)
         main_window.setStatusBarContent("Finished")
 
 

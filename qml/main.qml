@@ -201,7 +201,7 @@ ApplicationWindow {
                     onClicked: {
                         mainwindow.savePointsAsSVG(canvas.points,
                                                    canvas.points.length,
-                                                   openDialog.file)
+                                                   image.source)
                     }
                 }
 
@@ -259,6 +259,22 @@ ApplicationWindow {
                         mainwindow.runOSVOS(
                                     "file:///home/gdshen/PycharmProjects/label_with_osvos/data/imgs",
                                     "file:///home/gdshen/PycharmProjects/label_with_osvos/data/annotations")
+                    }
+                }
+
+                ToolSeparator {
+                    contentItem.visible: osvosRow.y === testRow.y
+                }
+            }
+
+            Row {
+                id: testRow
+                ToolButton {
+                    id: testNewFunction
+                    text: "\uF25A"
+                    font.family: "fontello"
+                    onClicked: {
+                        console.log("click testnewrunction button")
                     }
                 }
             }
@@ -344,7 +360,7 @@ ApplicationWindow {
             property bool firstPoint: true
 
             property var points: []
-            property color bezierLineColor: "#000"
+            property color bezierLineColor: "#FFF"
             property color controlLineColor: "#0FF"
             property color rectColor: "#F00"
             property real rectWidth: 5
