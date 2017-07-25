@@ -103,18 +103,6 @@ ApplicationWindow {
         }
     }
 
-    FileDialog {
-        id: openSVGDialog
-        fileMode: FileDialog.OpenFile
-        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
-        nameFilters: ["SVG files (*.svg)"]
-        onAccepted: {
-            console.log('load svg')
-            openSVGFile(file)
-            area.focus = true
-        }
-    }
-
 
     function setStatusBarContent(content) {
         statusBar.text = content
@@ -139,14 +127,6 @@ ApplicationWindow {
                     text: "\uF115"
                     font.family: "fontello"
                     onClicked: openOverlayDialog.open()
-                }
-                ToolButton {
-                    id: svgOpenButton
-                    text: "\uF1C9"
-                    font.family: "fontello"
-                    onClicked: {
-                        openSVGDialog.open()
-                    }
                 }
 
                 ToolButton {
@@ -740,6 +720,9 @@ ApplicationWindow {
                     text: imageNumber
                     onClicked: {
                         console.log(imageNumber)
+                        openSVGFile(imageNumber)
+                        image.source = 'file://' + sequenceDir + '/' + imageNumber +'.jpg'
+                        area.focus = true
                     }
                 }
             }

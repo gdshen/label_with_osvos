@@ -85,9 +85,8 @@ if __name__ == '__main__':
         wsvg(paths=paths, filename=filename)
 
 
-    def open_svg_file_load_points_handler(filename):
-        print(filename)
-        filename = filename[7:]
+    def open_svg_file_load_points_handler(image_number):
+        filename = os.path.join(project_path, svg_dir, image_number+'.svg')
 
         # parse svg file
         points = []
