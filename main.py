@@ -40,9 +40,9 @@ if __name__ == '__main__':
     file_lists = [file[:5] for file in sorted(os.listdir(os.path.join(project_path, sequence_dir)))]
     # print(file_lists)
 
-    mask_key = config['Mask']['key'].split(',')
-    mask_svg = config['Mask']['svg'].split(',')
-    mask_png = config['Mask']['png'].split(',')
+    mask_key = config['Mask']['key'].split(',') if config['Mask']['key'] else []
+    mask_svg = config['Mask']['svg'].split(',') if config['Mask']['svg'] else []
+    mask_png = config['Mask']['png'].split(',') if config['Mask']['png'] else []
     key_frames = [frame[:5] for frame in mask_key]
     # print(key_frames)
     # print(mask_key)
@@ -61,9 +61,8 @@ if __name__ == '__main__':
         full_annotation_dir = os.path.join(project_path, annotation_dir)
         result_dir = os.path.join(project_path, mask_dir)
         from osvos_demo import run_osvos
-        main_window.setStatusBarContent("Training")
         run_osvos(full_sequence_dir, full_annotation_dir, result_dir, max_training_iters=10)
-        main_window.setStatusBarContent("Finished")
+        main_window.setStatusBarContent("Running osvos in the background, please check the directory yourself")
 
 
     def save_points_as_svg_handler(points, size, image_number):

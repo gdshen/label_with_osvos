@@ -9,13 +9,8 @@ ApplicationWindow {
     id: mainwindow
     visible: true
 
-    Material.theme: Material.System
-    Material.primary: "#FFFFFF"
-    Material.foreground: "#444444"
-    Material.accent: Material.Blue
-
-    width: 640
-    height: 480
+    width: 800
+    height: 600
 
     signal runOSVOS
     signal savePointsAsSVG(var points, int size, string filename)
@@ -140,6 +135,7 @@ ApplicationWindow {
                         clearCanvas()
                         messageDialog.text = "Save as svg and png file"
                         messageDialog.open()
+                        area.focus = true
                     }
                 }
 
@@ -213,6 +209,14 @@ ApplicationWindow {
                         mainwindow.previewResultMode = !mainwindow.previewResultMode
                         clearCanvas()
                         mainwindow.labelMode = !mainwindow.labelMode
+
+                        if (mainwindow.previewResultMode) {
+                            imageOverlay.source = maskDir + '/' + imageSrc.toString(
+                                        ).slice(-9, -4) + '.png'
+                        } else {
+                            imageOverlay.source = ''
+                        }
+                        clearCanvas()
                         area.force = true
                     }
                 }
@@ -243,9 +247,7 @@ ApplicationWindow {
         Image {
             id: image
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.margins: 40
-            //        anchors.verticalCenter: parent.verticalCenter
-            anchors.top: parent.top
+            anchors.verticalCenter: parent.verticalCenter
             transform: [
                 Scale {
                     id: imageScale
@@ -263,9 +265,7 @@ ApplicationWindow {
             id: imageOverlay
             opacity: 0.5
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.margins: 40
-            //        anchors.verticalCenter: parent.verticalCenter
-            anchors.top: parent.top
+            anchors.verticalCenter: parent.verticalCenter
             transform: [
                 Scale {
                     id: imageOverlayScale
@@ -284,6 +284,8 @@ ApplicationWindow {
             id: canvas
             width: image.width
             height: image.height
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
             transform: [
                 Scale {
                     id: canvasScale
@@ -296,9 +298,6 @@ ApplicationWindow {
                     y: 0
                 }
             ]
-            anchors.top: parent.top
-            anchors.horizontalCenter: image.horizontalCenter
-            anchors.margins: 40
 
             property real lastX
             property real lastY
@@ -675,6 +674,7 @@ ApplicationWindow {
                         } else {
                             imageOverlay.source = ''
                         }
+                        mainwindow.clearCanvas()
                     }
                 }
             }
@@ -692,8 +692,23 @@ ApplicationWindow {
         anchors.margins: 5
 
         Label {
-            id: segFramesLabel
+            id: currentLabel
             anchors.horizontalCenter: parent.horizontalCenter
+            text: "Current"
+        }
+
+        Label {
+            id: currentInfoLabel
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: currentLabel.bottom
+            text: image.source.toString().slice(-9, -4)
+        }
+
+        Label {
+            id: segFramesLabel
+            anchors.topMargin: 5
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: currentInfoLabel.bottom
             text: "人工标注"
         }
 
