@@ -14,7 +14,7 @@ if sys.platform.startswith('linux'):
     from ctypes import util
     ctypes.CDLL(util.find_library('GL'), ctypes.RTLD_GLOBAL)
 
-os.environ['QT_QUICK_CONTROLS_STYLE'] = 'Material'
+os.environ['QT_QUICK_CONTROLS_STYLE'] = 'Universal'
 
 if __name__ == '__main__':
     # parse command line argument
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # parse configuration file
     config = configparser.ConfigParser()
     config.read(args.config)
-    print(config.sections())
+    # print(config.sections())
     project_path = config['ProInfo']['ProPath']
     sequence_dir = config['ProInfo']['SequenceDir']
     svg_dir = config['ProInfo']['SvgDir']
@@ -109,7 +109,6 @@ if __name__ == '__main__':
         config['Mask']['png'] = ','.join(png_lists)
         with open(args.config, 'w') as configfile:
             config.write(configfile)
-
 
 
     main_window.runOSVOS.connect(osvos)

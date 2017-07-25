@@ -33,7 +33,7 @@ ApplicationWindow {
     property string annotationDir: ''
     property string maskDir: ''
     property bool previewResultMode: false
-    property bool labelMode: false
+    property bool labelMode: true
 
     FontLoader {
         id: font
@@ -101,6 +101,14 @@ ApplicationWindow {
         statusBar.text = content
     }
 
+    function clearCanvas() {
+        canvas.points = []
+        canvas.fillTheRegion = false
+        canvas.firstPoint = true
+        console.log("clear")
+        canvas.requestPaint()
+    }
+
     MessageDialog {
         id: messageDialog
         buttons: MessageDialog.Ok
@@ -116,28 +124,20 @@ ApplicationWindow {
             Row {
                 id: fileRow
                 ToolButton {
-                    id: openOverlayButton
-                    text: "\uF115"
-                    font.family: "fontello"
-                    onClicked: openOverlayDialog.open()
-                }
-
-                ToolButton {
                     id: saveButton
                     text: "\uE800"
                     font.family: "fontello"
                     onClicked: {
                         var imageNumber = image.source.toString().slice(-9, -4)
                         keyFrames.push(imageNumber)
-                        keyFramesModel.append({
-                                                  imageNumber: imageNumber
-                                              })
+                        keyFramesModel.append({imageNumber: imageNumber})
+
                         console.log(keyFrames)
                         canvas.save(annotationDir + '/' + imageNumber + '.png')
                         mainwindow.writeIni(keyFrames, keyFrames.length)
-                        mainwindow.savePointsAsSVG(canvas.points,
-                                                   canvas.points.length,
-                                                   imageNumber)
+                        mainwindow.savePointsAsSVG(canvas.points, canvas.points.length, imageNumber)
+
+                        clearCanvas()
                         messageDialog.text = "Save as svg and png file"
                         messageDialog.open()
                     }
@@ -173,11 +173,7 @@ ApplicationWindow {
                     text: "\uF12D"
                     font.family: "fontello"
                     onClicked: {
-                        canvas.points = []
-                        canvas.fillTheRegion = false
-                        canvas.firstPoint = true
-                        console.log("clear")
-                        canvas.requestPaint()
+                        clearCanvas()
                     }
                 }
 
@@ -212,9 +208,11 @@ ApplicationWindow {
                     text: "\uE805"
                     font.family: "fontello"
                     onClicked: {
-                        messageDialog.text = "Triggle Preview Result Mode"
+                        messageDialog.text = "Toggle preview result mode"
                         messageDialog.open()
                         mainwindow.previewResultMode = !mainwindow.previewResultMode
+                        clearCanvas()
+                        mainwindow.labelMode = !mainwindow.labelMode
                         area.force = true
                     }
                 }
@@ -366,7 +364,6 @@ ApplicationWindow {
                                          point.targetPoint.Y)
                     ctx.stroke()
 
-                    if (drawAdditionalInformation) {
                         // draw the control line
                         ctx.beginPath()
                         ctx.strokeStyle = canvas.controlLineColor
@@ -387,7 +384,6 @@ ApplicationWindow {
                         ctx.rect(point.controlPoint.X, point.controlPoint.Y,
                                  rectWidth, rectWidth)
                         ctx.stroke()
-                    }
                 }
             }
 
@@ -410,8 +406,8 @@ ApplicationWindow {
             function computeDistance(point1, point2) {
                 var deltaX = point1.X - point2.X
                 var deltaY = point1.X - point2.X
-                var distance = deltaX * deltaX + deltaY
-                        * deltaY // return square distance, to keep distance as an integer
+                // return square distance, to keep distance as an integer
+                var distance = deltaX * deltaX + deltaY * deltaY
                 return distance
             }
 
@@ -437,9 +433,13 @@ ApplicationWindow {
                 id: area
                 anchors.fill: parent
                 focus: true // to enable the keyevent, the focus property must be set to true
-                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                acceptedButtons: Qt.LeftButton
 
                 onPressed: {
+                    if (!mainwindow.labelMode) {
+                        return
+                    }
+
                     canvas.lastX = mouseX
                     canvas.lastY = mouseY
                     if (canvas.shiftPressed) {
@@ -448,14 +448,6 @@ ApplicationWindow {
 
                     console.log("Information of position after translation "
                                 + mouseX + " " + mouseY)
-                    if (pressedButtons === Qt.RightButton) {
-                        console.log("Pressed right button")
-                        canvas.drawAdditionalInformation = !canvas.drawAdditionalInformation
-                        canvas.requestPaint()
-                        return
-                    }
-
-                    console.log("MouseX: " + mouseX + " MouseY: " + mouseY)
                     console.log("onPressed altPressed" + canvas.altPressed)
                     if (canvas.altPressed) {
                         console.log("enter alt pressed mode")
@@ -525,6 +517,10 @@ ApplicationWindow {
                 }
 
                 onReleased: {
+                    if (!mainwindow.labelMode) {
+                        return
+                    }
+
                     if (canvas.shiftPressed) {
                         return
                     }
@@ -544,8 +540,11 @@ ApplicationWindow {
                 }
 
                 onPositionChanged: {
-                    console.log("point modify mode " + canvas.pointModifyMode)
+                    if (!mainwindow.labelMode) {
+                        return
+                    }
 
+//                    console.log("point modify mode " + canvas.pointModifyMode)
                     // process image translation
                     if (canvas.shiftPressed) {
                         var deltaX = mouseX - canvas.lastX
@@ -569,7 +568,7 @@ ApplicationWindow {
                             X: mouseX,
                             Y: mouseY
                         }
-                        // diffferent from canvas.pointToMove = currentPoint // pass by value vs. pass by reference
+                        // different from canvas.pointToMove = currentPoint // pass by value vs. pass by reference
                         canvas.pointToMove.X = currentPoint.X
                         canvas.pointToMove.Y = currentPoint.Y
 
@@ -648,6 +647,7 @@ ApplicationWindow {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: infoRect.left
+        anchors.margins: 5
         height: 100
         spacing: 4
         clip: true
@@ -686,7 +686,7 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: 200
+        width: 100
         //        height: parent.height
         border.color: "#000"
         anchors.margins: 5
@@ -694,7 +694,7 @@ ApplicationWindow {
         Label {
             id: segFramesLabel
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "Manually Segmentated"
+            text: "人工标注"
         }
 
         ListModel {
