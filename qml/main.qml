@@ -211,13 +211,13 @@ ApplicationWindow {
                         mainwindow.labelMode = !mainwindow.labelMode
 
                         if (mainwindow.previewResultMode) {
-                            imageOverlay.source = maskDir + '/' + imageSrc.toString(
+                            imageOverlay.source = maskDir + '/' + image.source.toString(
                                         ).slice(-9, -4) + '.png'
                         } else {
                             imageOverlay.source = ''
                         }
                         clearCanvas()
-                        area.force = true
+                        area.focus = true
                     }
                 }
             }
