@@ -221,6 +221,10 @@ ApplicationWindow {
                     text: "\uE804"
                     font.family: "fontello"
                     onClicked: {
+                        buttonsModel.append({
+                                                imageNumber: image.source.toString(
+                                                                 ).slice(-9, -4)
+                                            })
                         mainwindow.savePointsAsSVG(canvas.points,
                                                    canvas.points.length,
                                                    image.source)
@@ -770,23 +774,25 @@ ApplicationWindow {
         border.color: "#000"
         anchors.margins: 5
 
-        Label {
-            id: canvasName
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.margins: 5
-
-            text: "Canvas Name"
+        ListModel {
+            id: buttonsModel
         }
 
-        Label {
-            id: currentFrameName
-            anchors.top: canvasName.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.margins: 5
+        ListView {
+            id: buttonsListView
+            anchors.fill: parent
+            clip: true
+            model: buttonsModel
+            delegate: singleButton
 
-            text: "Current Frame Name"
+            Component {
+                id: singleButton
+
+                Button {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: imageNumber
+                }
+            }
         }
     }
 }
