@@ -6,16 +6,16 @@ from dataset import Dataset
 from multiprocessing import Process
 
 
-def run_osvos(imgs_dir, labels_dir, max_training_iters=500):
-    p = Process(target=run_osvos_, args=(imgs_dir, labels_dir, max_training_iters))
+def run_osvos(imgs_dir, labels_dir, result_dir, max_training_iters=500):
+    p = Process(target=run_osvos_, args=(imgs_dir, labels_dir, result_dir, max_training_iters))
     p.start()
 
 
-def run_osvos_(imgs_dir, labels_dir, max_training_iters=500):
+def run_osvos_(imgs_dir, labels_dir, result_dir, max_training_iters=500):
     # User defined parameters
     gpu_id = 0
     train_model = True
-    result_path = os.path.join('data', 'result')
+    result_path = result_dir
 
     # Train parameters
     seq_name = 'osvos'

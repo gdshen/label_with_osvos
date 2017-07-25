@@ -17,9 +17,10 @@ ApplicationWindow {
     width: 640
     height: 480
 
-    signal runOSVOS(string imgs_dir, string labels_dir)
+    signal runOSVOS()
     signal savePointsAsSVG(var points, int size, string filename)
     signal openSVGFile(string filename)
+    signal writeIni(var imageNumbers, int size)
 
     //    minimumWidth: 400
     //    minimumHeight: 300
@@ -158,6 +159,7 @@ ApplicationWindow {
                         keyFramesModel.append({'imageNumber': imageNumber})
                         console.log(keyFrames)
                         canvas.save(annotationDir+'/'+imageNumber+'.png')
+                        mainwindow.writeIni(keyFrames, keyFrames.length)
                         mainwindow.savePointsAsSVG(canvas.points,
                                                    canvas.points.length,
                                                    imageNumber)
@@ -219,9 +221,7 @@ ApplicationWindow {
                         console.log("run osvos")
                         messageDialog.text = "start to run osvos model"
                         messageDialog.open()
-                        mainwindow.runOSVOS(
-                                    "file:///home/gdshen/PycharmProjects/label_with_osvos/data/imgs",
-                                    "file:///home/gdshen/PycharmProjects/label_with_osvos/data/annotations")
+                        mainwindow.runOSVOS()
                     }
                 }
 

@@ -56,14 +56,13 @@ if __name__ == '__main__':
     main_window = engine.rootObjects()[0]
 
 
-    def osvos(imgs_dir, labels_dir):
-        imgs_dir = imgs_dir[7:]
-        labels_dir = labels_dir[7:]
-        print(imgs_dir)
-        print(labels_dir)
+    def osvos():
+        full_sequence_dir = os.path.join(project_path, sequence_dir)
+        full_annotation_dir = os.path.join(project_path, annotation_dir)
+        result_dir = os.path.join(project_path, mask_dir)
         from osvos_demo import run_osvos
         main_window.setStatusBarContent("Training")
-        run_osvos(imgs_dir, labels_dir, max_training_iters=10)
+        run_osvos(full_sequence_dir, full_annotation_dir, result_dir, max_training_iters=10)
         main_window.setStatusBarContent("Finished")
 
 
@@ -101,9 +100,23 @@ if __name__ == '__main__':
         main_window.changePoints(points)
 
 
+    def write_ini(image_numbers, size):
+        image_numbers = [image_numbers.property(i).toString() for i in range(size)]
+        jpg_lists = [number+'.jpg' for number in image_numbers]
+        svg_lists = [number+'.svg' for number in image_numbers]
+        png_lists = [number+'.png' for number in image_numbers]
+        config['Mask']['key'] = ','.join(jpg_lists)
+        config['Mask']['svg'] = ','.join(svg_lists)
+        config['Mask']['png'] = ','.join(png_lists)
+        with open(args.config, 'w') as configfile:
+            config.write(configfile)
+
+
+
     main_window.runOSVOS.connect(osvos)
     main_window.savePointsAsSVG.connect(save_points_as_svg_handler)
     main_window.openSVGFile.connect(open_svg_file_load_points_handler)
+    main_window.writeIni.connect(write_ini)
     main_window.setProperty('fileLists', file_lists)
     main_window.setProperty('keyFrames', key_frames)
     main_window.setProperty('sequenceDir', os.path.join(project_path, sequence_dir))
