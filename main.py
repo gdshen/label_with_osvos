@@ -1,32 +1,27 @@
 # fix opengl load error on linux platform
 # according to https://bugs.launchpad.net/ubuntu/+source/python-qt4/+bug/941826
 import os
-
-os.environ['QT_QUICK_CONTROLS_STYLE'] = 'Material'
-
-import sys
-
-if sys.platform.startswith('linux'):
-    import ctypes
-    from ctypes import util
-
-    ctypes.CDLL(util.find_library('GL'), ctypes.RTLD_GLOBAL)
-
-from PyQt5.QtCore import QUrl, QObject, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtQml import QQmlEngine, QQmlComponent, QQmlApplicationEngine
-from PyQt5.QtQuick import QQuickView
+from PyQt5.QtCore import QUrl
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtQml import QQmlApplicationEngine
+from svgpathtools import QuadraticBezier, Path, wsvg, svg2paths
 import argparse
 import configparser
 
-from svgpathtools import QuadraticBezier, Path, wsvg, svg2paths
+import sys
+if sys.platform.startswith('linux'):
+    import ctypes
+    from ctypes import util
+    ctypes.CDLL(util.find_library('GL'), ctypes.RTLD_GLOBAL)
+
+os.environ['QT_QUICK_CONTROLS_STYLE'] = 'Material'
 
 if __name__ == '__main__':
     # parse command line argument
     parser = argparse.ArgumentParser(description='Label with osvos')
     parser.add_argument('config', type=str, help='location of the configuration file')
     args = parser.parse_args()
-    print(args.config)
+    # print(args.config)
 
     # parse configuration file
     config = configparser.ConfigParser()
@@ -37,21 +32,24 @@ if __name__ == '__main__':
     svg_dir = config['ProInfo']['SvgDir']
     annotation_dir = config['ProInfo']['AnotationsDir']
     mask_dir = config['ProInfo']['MaskDir']
-    print(project_path)
-    print(sequence_dir)
-    print(svg_dir)
-    print(mask_dir)
+    # print(project_path)
+    # print(sequence_dir)
+    # print(svg_dir)
+    # print(mask_dir)
+
+    file_lists = [file[:5] for file in sorted(os.listdir(os.path.join(project_path, sequence_dir)))]
+    # print(file_lists)
 
     mask_key = config['Mask']['key'].split(',')
     mask_svg = config['Mask']['svg'].split(',')
     mask_png = config['Mask']['png'].split(',')
-    print(mask_key)
-    print(mask_svg)
-    print(mask_png)
+    key_frames = [frame[:5] for frame in mask_key]
+    # print(key_frames)
+    # print(mask_key)
+    # print(mask_svg)
+    # print(mask_png)
 
-
-
-
+    # start qt/qml application
     myApp = QApplication(sys.argv)
     engine = QQmlApplicationEngine()
     engine.load(QUrl('qml/main.qml'))
@@ -106,5 +104,12 @@ if __name__ == '__main__':
     main_window.runOSVOS.connect(osvos)
     main_window.savePointsAsSVG.connect(save_points_as_svg_handler)
     main_window.openSVGFile.connect(open_svg_file_load_points_handler)
+    main_window.setProperty('fileLists', file_lists)
+    main_window.setProperty('keyFrames', key_frames)
+    main_window.setProperty('sequenceDir', os.path.join(project_path, sequence_dir))
+    main_window.setProperty('svgDir', os.path.join(project_path, svg_dir))
+    main_window.setProperty('annotationDir', os.path.join(project_path, annotation_dir))
+    main_window.setProperty('maskDir', os.path.join(project_path, mask_dir))
+    main_window.initializeListView()
 
     sys.exit(myApp.exec_())

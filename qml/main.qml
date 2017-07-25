@@ -25,6 +25,13 @@ ApplicationWindow {
     //    minimumHeight: 300
     title: "Label with OSVOS"
 
+    property var fileLists: []
+    property var keyFrames: []
+    property string sequenceDir: ''
+    property string svgDir: ''
+    property string annotationDir: ''
+    property string maskDir: ''
+
     FontLoader {
         id: font
         source: "fonts/fontello.ttf"
@@ -68,6 +75,19 @@ ApplicationWindow {
                                })
         }
         canvas.requestPaint()
+    }
+
+    function initializeListView() {
+        fileListsModel.clear()
+        for (var i=0; i<fileLists.length; i++) {
+            fileListsModel.append({'imageSrc': 'file://' + sequenceDir + '/' + fileLists[i] + '.jpg'})
+        }
+
+        keyFramesModel.clear()
+        for (var i=0; i<keyFrames.length; i++) {
+            keyFramesModel.append({'imageNumber': keyFrames[i]})
+        }
+
     }
 
     // this filedialog from qt.labs.platform
@@ -143,42 +163,6 @@ ApplicationWindow {
         buttons: MessageDialog.Ok
     }
 
-    MenuBar {
-        Menu {
-            title: qsTr("&File")
-            MenuItem {
-                text: qsTr("&Open")
-                onTriggered: console.log("File open") // todo
-            }
-            MenuItem {
-                text: qsTr("&Save as...")
-                onTriggered: console.log("File save") //todo
-            }
-            MenuItem {
-                text: qsTr("&Quit")
-                onTriggered: Qt.quit()
-            }
-        }
-        Menu {
-            title: qsTr("&Action")
-            MenuItem {
-                text: qsTr("Undo")
-                onTriggered: console.log("undo") // todo
-            }
-            MenuItem {
-                text: qsTr("Clear")
-                onTriggered: console.log("clear") // todo
-            }
-        }
-        Menu {
-            title: qsTr("OSVOS")
-            MenuItem {
-                text: "Run OSVOS"
-                onTriggered: console.log("run osvos") // todo
-            }
-        }
-    }
-
     header: ToolBar {
         leftPadding: 8
 
@@ -188,12 +172,6 @@ ApplicationWindow {
 
             Row {
                 id: fileRow
-                ToolButton {
-                    id: openButton
-                    text: "\uF115"
-                    font.family: "fontello"
-                    onClicked: openDialog.open()
-                }
                 ToolButton {
                     id: openOverlayButton
                     text: "\uF115"
@@ -221,10 +199,9 @@ ApplicationWindow {
                     text: "\uE804"
                     font.family: "fontello"
                     onClicked: {
-                        buttonsModel.append({
-                                                imageNumber: image.source.toString(
-                                                                 ).slice(-9, -4)
-                                            })
+                        keyFrames.push(image.source.toString().slice(-9, -4))
+                        keyFramesModel.append({'imageNumber': image.source.toString().slice(-9, -4)})
+                        console.log(keyFrames)
                         mainwindow.savePointsAsSVG(canvas.points,
                                                    canvas.points.length,
                                                    image.source)
@@ -306,7 +283,9 @@ ApplicationWindow {
                     onClicked: {
                         console.log("click testnewrunction button")
                         messageDialog.text = "click test button"
-                        messageDialog.open()
+                        //                        messageDialog.open()
+                        console.log('hello ' + sequenceDir)
+                        console.log('hello' + fileLists)
                     }
                 }
             }
@@ -729,8 +708,9 @@ ApplicationWindow {
             }
         }
     }
+
     ListModel {
-        id: listModel
+        id: fileListsModel
     }
 
     ListView {
@@ -742,7 +722,7 @@ ApplicationWindow {
         spacing: 4
         clip: true
 
-        model: listModel
+        model: fileListsModel
         orientation: ListView.Horizontal
         delegate: singleImage
 
@@ -757,6 +737,7 @@ ApplicationWindow {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
+                        console.log(imageSrc)
                         image.source = imageSrc
                     }
                 }
@@ -769,20 +750,30 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: 100
+        width: 200
         //        height: parent.height
         border.color: "#000"
         anchors.margins: 5
 
+        Label {
+            id: segFramesLabel
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: "Segmentated frames"
+        }
+
         ListModel {
-            id: buttonsModel
+            id: keyFramesModel
         }
 
         ListView {
             id: buttonsListView
-            anchors.fill: parent
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: segFramesLabel.bottom
+            anchors.bottom: parent.bottom
+
             clip: true
-            model: buttonsModel
+            model: keyFramesModel
             delegate: singleButton
 
             Component {
@@ -791,8 +782,12 @@ ApplicationWindow {
                 Button {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: imageNumber
+                    onClicked: {
+                        console.log(imageNumber)
+                    }
                 }
             }
         }
+
     }
 }
