@@ -17,7 +17,7 @@ ApplicationWindow {
     width: 640
     height: 480
 
-    signal runOSVOS()
+    signal runOSVOS
     signal savePointsAsSVG(var points, int size, string filename)
     signal openSVGFile(string filename)
     signal writeIni(var imageNumbers, int size)
@@ -32,6 +32,8 @@ ApplicationWindow {
     property string svgDir: ''
     property string annotationDir: ''
     property string maskDir: ''
+    property bool previewResultMode: false
+    property bool labelMode: false
 
     FontLoader {
         id: font
@@ -80,29 +82,20 @@ ApplicationWindow {
 
     function initializeListView() {
         fileListsModel.clear()
-        for (var i=0; i<fileLists.length; i++) {
-            fileListsModel.append({'imageSrc': 'file://' + sequenceDir + '/' + fileLists[i] + '.jpg'})
+        for (var i = 0; i < fileLists.length; i++) {
+            fileListsModel.append({
+                                      imageSrc: 'file://' + sequenceDir + '/'
+                                                + fileLists[i] + '.jpg'
+                                  })
         }
 
         keyFramesModel.clear()
-        for (var i=0; i<keyFrames.length; i++) {
-            keyFramesModel.append({'imageNumber': keyFrames[i]})
-        }
-
-    }
-
-
-    FileDialog {
-        id: openOverlayDialog
-        fileMode: FileDialog.OpenFile
-        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
-        nameFilters: ["PNG files (*.png)"]
-        onAccepted: {
-            imageOverlay.source = file
-            area.focus = true
+        for (var i = 0; i < keyFrames.length; i++) {
+            keyFramesModel.append({
+                                      imageNumber: keyFrames[i]
+                                  })
         }
     }
-
 
     function setStatusBarContent(content) {
         statusBar.text = content
@@ -136,9 +129,11 @@ ApplicationWindow {
                     onClicked: {
                         var imageNumber = image.source.toString().slice(-9, -4)
                         keyFrames.push(imageNumber)
-                        keyFramesModel.append({'imageNumber': imageNumber})
+                        keyFramesModel.append({
+                                                  imageNumber: imageNumber
+                                              })
                         console.log(keyFrames)
-                        canvas.save(annotationDir+'/'+imageNumber+'.png')
+                        canvas.save(annotationDir + '/' + imageNumber + '.png')
                         mainwindow.writeIni(keyFrames, keyFrames.length)
                         mainwindow.savePointsAsSVG(canvas.points,
                                                    canvas.points.length,
@@ -195,7 +190,7 @@ ApplicationWindow {
                 id: osvosRow
                 ToolButton {
                     id: runOSVOSButton
-                    text: "\uE803"
+                    text: "\uE842"
                     font.family: "fontello"
                     onClicked: {
                         console.log("run osvos")
@@ -206,22 +201,21 @@ ApplicationWindow {
                 }
 
                 ToolSeparator {
-                    contentItem.visible: osvosRow.y === testRow.y
+                    contentItem.visible: osvosRow.y === previewRow.y
                 }
             }
 
             Row {
-                id: testRow
+                id: previewRow
                 ToolButton {
-                    id: testNewFunction
-                    text: "\uF25A"
+                    id: previewModeButton
+                    text: "\uE805"
                     font.family: "fontello"
                     onClicked: {
-                        console.log("click testnewrunction button")
-                        messageDialog.text = "click test button"
-                        //                        messageDialog.open()
-                        console.log('hello ' + sequenceDir)
-                        console.log('hello' + fileLists)
+                        messageDialog.text = "Triggle Preview Result Mode"
+                        messageDialog.open()
+                        mainwindow.previewResultMode = !mainwindow.previewResultMode
+                        area.force = true
                     }
                 }
             }
@@ -675,6 +669,12 @@ ApplicationWindow {
                     onClicked: {
                         console.log(imageSrc)
                         image.source = imageSrc
+                        if (mainwindow.previewResultMode) {
+                            imageOverlay.source = maskDir + '/' + imageSrc.toString(
+                                        ).slice(-9, -4) + '.png'
+                        } else {
+                            imageOverlay.source = ''
+                        }
                     }
                 }
             }
@@ -694,7 +694,7 @@ ApplicationWindow {
         Label {
             id: segFramesLabel
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "Segmentated frames"
+            text: "Manually Segmentated"
         }
 
         ListModel {
@@ -721,12 +721,11 @@ ApplicationWindow {
                     onClicked: {
                         console.log(imageNumber)
                         openSVGFile(imageNumber)
-                        image.source = 'file://' + sequenceDir + '/' + imageNumber +'.jpg'
+                        image.source = 'file://' + sequenceDir + '/' + imageNumber + '.jpg'
                         area.focus = true
                     }
                 }
             }
         }
-
     }
 }
