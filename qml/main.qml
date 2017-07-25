@@ -404,7 +404,7 @@ ApplicationWindow {
 
             function computeDistance(point1, point2) {
                 var deltaX = point1.X - point2.X
-                var deltaY = point1.X - point2.X
+                var deltaY = point1.Y - point2.Y
                 // return square distance, to keep distance as an integer
                 var distance = deltaX * deltaX + deltaY * deltaY
                 return distance
