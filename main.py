@@ -4,20 +4,54 @@ import os
 
 os.environ['QT_QUICK_CONTROLS_STYLE'] = 'Material'
 
-import ctypes
-from ctypes import util
-
-ctypes.CDLL(util.find_library('GL'), ctypes.RTLD_GLOBAL)
-
 import sys
+
+if sys.platform.startswith('linux'):
+    import ctypes
+    from ctypes import util
+
+    ctypes.CDLL(util.find_library('GL'), ctypes.RTLD_GLOBAL)
+
 from PyQt5.QtCore import QUrl, QObject, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtQml import QQmlEngine, QQmlComponent, QQmlApplicationEngine
 from PyQt5.QtQuick import QQuickView
+import argparse
+import configparser
 
 from svgpathtools import QuadraticBezier, Path, wsvg, svg2paths
 
 if __name__ == '__main__':
+    # parse command line argument
+    parser = argparse.ArgumentParser(description='Label with osvos')
+    parser.add_argument('config', type=str, help='location of the configuration file')
+    args = parser.parse_args()
+    print(args.config)
+
+    # parse configuration file
+    config = configparser.ConfigParser()
+    config.read(args.config)
+    print(config.sections())
+    project_path = config['ProInfo']['ProPath']
+    sequence_dir = config['ProInfo']['SequenceDir']
+    svg_dir = config['ProInfo']['SvgDir']
+    annotation_dir = config['ProInfo']['AnotationsDir']
+    mask_dir = config['ProInfo']['MaskDir']
+    print(project_path)
+    print(sequence_dir)
+    print(svg_dir)
+    print(mask_dir)
+
+    mask_key = config['Mask']['key'].split(',')
+    mask_svg = config['Mask']['svg'].split(',')
+    mask_png = config['Mask']['png'].split(',')
+    print(mask_key)
+    print(mask_svg)
+    print(mask_png)
+
+
+
+
     myApp = QApplication(sys.argv)
     engine = QQmlApplicationEngine()
     engine.load(QUrl('qml/main.qml'))
