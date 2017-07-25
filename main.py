@@ -67,9 +67,9 @@ if __name__ == '__main__':
         main_window.setStatusBarContent("Finished")
 
 
-    def save_points_as_svg_handler(points, size, filename):
+    def save_points_as_svg_handler(points, size, image_number):
         # filename like file:///home/gdshen/Pictures/00000.jpg
-        filename = filename.split('/')[-1].split('.')[0] + '.svg'
+        filename = os.path.join(project_path, svg_dir, image_number+'.svg')
         paths = []
         for i in range(size):
             start_point_x = points.property(i).property('startPoint').property('X').toInt()

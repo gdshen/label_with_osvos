@@ -90,30 +90,6 @@ ApplicationWindow {
 
     }
 
-    // this filedialog from qt.labs.platform
-    FileDialog {
-        id: openDialog
-        fileMode: FileDialog.OpenFiles
-        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
-        nameFilters: ["JPEG files (*.jpg)", "PNG files (*.png)"]
-        onAccepted: {
-            image.source = file
-            console.log("You chose: " + file)
-            statusBar.text = "Image width " + image.width + " height " + image.height
-                    + "; canvas width " + canvas.width + " height " + canvas.height
-            listModel.clear()
-            for (var i = 0; i < files.length; i++) {
-                listModel.append({
-                                     imageSrc: files[i]
-                                 })
-            }
-
-            area.focus = true
-        }
-        onRejected: {
-            console.log("Cancle")
-        }
-    }
 
     FileDialog {
         id: openOverlayDialog
@@ -138,21 +114,6 @@ ApplicationWindow {
         }
     }
 
-    FileDialog {
-        id: saveDialog
-        fileMode: FileDialog.SaveFile
-        defaultSuffix: "png"
-        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
-        onAccepted: {
-            console.log("Save file as " + file.toString().slice(
-                            7)) // convert url to pure filename
-            var result = canvas.save(file.toString().slice(7))
-            console.log("Save " + result)
-        }
-        onRejected: {
-            console.log("Rejected file save")
-        }
-    }
 
     function setStatusBarContent(content) {
         statusBar.text = content
@@ -191,21 +152,16 @@ ApplicationWindow {
                     id: saveButton
                     text: "\uE800"
                     font.family: "fontello"
-                    onClicked: saveDialog.open()
-                }
-
-                ToolButton {
-                    id: saveSVGButton
-                    text: "\uE804"
-                    font.family: "fontello"
                     onClicked: {
-                        keyFrames.push(image.source.toString().slice(-9, -4))
-                        keyFramesModel.append({'imageNumber': image.source.toString().slice(-9, -4)})
+                        var imageNumber = image.source.toString().slice(-9, -4)
+                        keyFrames.push(imageNumber)
+                        keyFramesModel.append({'imageNumber': imageNumber})
                         console.log(keyFrames)
+                        canvas.save(annotationDir+'/'+imageNumber+'.png')
                         mainwindow.savePointsAsSVG(canvas.points,
                                                    canvas.points.length,
-                                                   image.source)
-                        messageDialog.text = "Save as svg file"
+                                                   imageNumber)
+                        messageDialog.text = "Save as svg and png file"
                         messageDialog.open()
                     }
                 }
