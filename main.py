@@ -20,6 +20,7 @@ if __name__ == '__main__':
     # parse command line argument
     parser = argparse.ArgumentParser(description='Label with osvos')
     parser.add_argument('config', type=str, help='location of the configuration file')
+    parser.add_argument('dir', type=str, help='concrete directory')
     args = parser.parse_args()
     # print(args.config)
 
@@ -28,12 +29,12 @@ if __name__ == '__main__':
     config.read(args.config)
     # print(config.sections())
     project_path = config['ProInfo']['ProPath']
-    sequence_dir = config['ProInfo']['SequenceDir']
-    svg_dir = config['ProInfo']['SvgDir']
-    annotation_dir = config['ProInfo']['AnotationsDir']
-    mask_dir = config['ProInfo']['MaskDir']
+    sequence_dir = config['ProInfo']['SequenceDir'] + '/' + args.dir
+    svg_dir = config['ProInfo']['SvgDir'] + '/' + args.dir
+    annotation_dir = config['ProInfo']['AnotationsDir'] + '/' + args.dir
+    mask_dir = config['ProInfo']['MaskDir'] + '/' + args.dir
     # print(project_path)
-    # print(sequence_dir)
+    # print(sequence_dir
     # print(svg_dir)
     # print(mask_dir)
 
