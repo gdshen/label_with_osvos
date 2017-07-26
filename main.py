@@ -41,9 +41,9 @@ if __name__ == '__main__':
     file_lists = [file[:5] for file in sorted(os.listdir(os.path.join(project_path, sequence_dir)))]
     # print(file_lists)
 
-    mask_key = config['Mask' + '_' + args.dir]['key'].split(',') if config['Mask']['key'] else []
-    mask_svg = config['Mask' + '_' + args.dir]['svg'].split(',') if config['Mask']['svg'] else []
-    mask_png = config['Mask' + '_' + args.dir]['png'].split(',') if config['Mask']['png'] else []
+    mask_key = config['Mask' + '_' + args.dir]['key'].split(',') if config['Mask' + '_' + args.dir]['key'] else []
+    mask_svg = config['Mask' + '_' + args.dir]['svg'].split(',') if config['Mask' + '_' + args.dir]['svg'] else []
+    mask_png = config['Mask' + '_' + args.dir]['png'].split(',') if config['Mask' + '_' + args.dir]['png'] else []
     key_frames = [frame[:5] for frame in mask_key]
     # print(key_frames)
     # print(mask_key)
