@@ -41,9 +41,9 @@ if __name__ == '__main__':
     file_lists = [file[:5] for file in sorted(os.listdir(os.path.join(project_path, sequence_dir)))]
     # print(file_lists)
 
-    mask_key = config['Mask']['key'].split(',') if config['Mask']['key'] else []
-    mask_svg = config['Mask']['svg'].split(',') if config['Mask']['svg'] else []
-    mask_png = config['Mask']['png'].split(',') if config['Mask']['png'] else []
+    mask_key = config['Mask' + '_' + args.dir]['key'].split(',') if config['Mask']['key'] else []
+    mask_svg = config['Mask' + '_' + args.dir]['svg'].split(',') if config['Mask']['svg'] else []
+    mask_png = config['Mask' + '_' + args.dir]['png'].split(',') if config['Mask']['png'] else []
     key_frames = [frame[:5] for frame in mask_key]
     # print(key_frames)
     # print(mask_key)
@@ -104,9 +104,9 @@ if __name__ == '__main__':
         jpg_lists = [number+'.jpg' for number in image_numbers]
         svg_lists = [number+'.svg' for number in image_numbers]
         png_lists = [number+'.png' for number in image_numbers]
-        config['Mask']['key'] = ','.join(jpg_lists)
-        config['Mask']['svg'] = ','.join(svg_lists)
-        config['Mask']['png'] = ','.join(png_lists)
+        config['Mask' + '_' + args.dir]['key'] = ','.join(jpg_lists)
+        config['Mask' + '_' + args.dir]['svg'] = ','.join(svg_lists)
+        config['Mask' + '_' + args.dir]['png'] = ','.join(png_lists)
         with open(args.config, 'w') as configfile:
             config.write(configfile)
 
