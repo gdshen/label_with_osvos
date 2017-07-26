@@ -124,8 +124,12 @@ ApplicationWindow {
                     font.family: "fontello"
                     onClicked: {
                         var imageNumber = image.source.toString().slice(-9, -4)
-                        keyFrames.push(imageNumber)
-                        keyFramesModel.append({imageNumber: imageNumber})
+                        console.log(imageNumber)
+                        console.log('check ' + keyFrames.indexOf(imageNumber))
+                        if (keyFrames.indexOf(imageNumber) === -1) {
+                            keyFrames.push(imageNumber)
+                            keyFramesModel.append({imageNumber: imageNumber})
+                        }
 
                         console.log(keyFrames)
                         canvas.save(annotationDir + '/' + imageNumber + '.png')
