@@ -109,6 +109,8 @@ if __name__ == '__main__':
         jpg_lists = [number+'.jpg' for number in image_numbers]
         svg_lists = [number+'.svg' for number in image_numbers]
         png_lists = [number+'.png' for number in image_numbers]
+        if 'Mask' + '_' + args.dir not in config.sections():
+            config.add_section('Mask' + '_' + args.dir)
         config['Mask' + '_' + args.dir]['key'] = ','.join(jpg_lists)
         config['Mask' + '_' + args.dir]['svg'] = ','.join(svg_lists)
         config['Mask' + '_' + args.dir]['png'] = ','.join(png_lists)
