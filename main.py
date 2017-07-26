@@ -62,7 +62,7 @@ if __name__ == '__main__':
         result_dir = os.path.join(project_path, mask_dir)
         from osvos_demo import run_osvos
         run_osvos(full_sequence_dir, full_annotation_dir, result_dir, max_training_iters=10)
-        main_window.setStatusBarContent("Running osvos in the background, please check the directory yourself")
+        # main_window.setStatusBarContent("Running osvos in the background, please check the directory yourself")
 
 
     def save_points_as_svg_handler(points, size, image_number):
